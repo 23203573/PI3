@@ -19,6 +19,12 @@
     font-weight: 700;
 }
 
+/* Nome do pensionato em cabeçalhos com fundo colorido */
+.pensionato-nome.text-white,
+.text-white .pensionato-nome {
+    color: var(--cor-branco) !important;
+}
+
 .pensionato-nome-hero {
     font-family: 'Montserrat', sans-serif;
     color: var(--cor-cobre);
