@@ -1,3 +1,6 @@
+/* Import da fonte Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
 /* Paleta de Cores - Identidade Visual */
 :root {
     --cor-branco: #FFFFFF;
@@ -6,6 +9,22 @@
     --cor-terracota: #C76E4A;
     --cor-marrom-escuro: #2B160E;
     --cor-preto: #000000;
+}
+
+/* Classe para o nome do pensionato em destaque */
+.pensionato-nome {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--cor-cobre);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.pensionato-nome-hero {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--cor-cobre);
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 3rem;
 }
 
 html {
