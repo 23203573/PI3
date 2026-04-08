@@ -91,6 +91,63 @@
     color: var(--cor-dourado);
 }
 
+/* Melhorar espaçamento e centralização do menu */
+.admin-navbar .navbar-nav {
+    gap: 1.5rem;
+}
+
+.admin-navbar .navbar-nav.mx-auto {
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.admin-navbar .nav-item {
+    position: relative;
+}
+
+.admin-navbar .nav-link {
+    padding: 0.75rem 1rem !important;
+    border-radius: 4px;
+    margin: 0 0.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-navbar .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: var(--cor-dourado);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.admin-navbar .nav-link:hover::before {
+    width: 80%;
+}
+
+/* Área do usuário logado */
+.admin-navbar .ms-auto {
+    gap: 1rem;
+}
+
+/* Responsividade melhorada */
+@media (max-width: 991px) {
+    .admin-navbar .navbar-nav.mx-auto {
+        text-align: center;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-navbar .ms-auto {
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+}
+
 /* Controles de Acessibilidade */
 .accessibility-controls {
     position: fixed;

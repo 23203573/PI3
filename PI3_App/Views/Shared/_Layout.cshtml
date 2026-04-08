@@ -36,8 +36,8 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Suites" asp-action="Index">
                                 <i class="fas fa-bed"></i> Suítes
@@ -69,8 +69,10 @@
                             </ul>
                         </li>
                     </ul>
-                    <div id="notificacoes-navbar"></div>
-                    <partial name="_LoginPartial" />
+                    <div class="navbar-nav ms-auto d-flex align-items-center">
+                        <div id="notificacoes-navbar"></div>
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
             </div>
         </nav>
