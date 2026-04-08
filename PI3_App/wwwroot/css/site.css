@@ -34,6 +34,77 @@
     font-size: 3rem;
 }
 
+/* Controles de Acessibilidade */
+.accessibility-controls {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--cor-cobre);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+}
+
+.accessibility-controls button {
+    background: var(--cor-cobre);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.accessibility-controls button:hover:not(:disabled) {
+    background: var(--cor-dourado);
+    transform: scale(1.05);
+}
+
+.accessibility-controls button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.accessibility-controls .zoom-info {
+    color: var(--cor-marrom-escuro);
+    font-weight: bold;
+    margin: 0 5px;
+    font-size: 0.75rem;
+}
+
+/* Responsividade para controles de acessibilidade */
+@media (max-width: 768px) {
+    .accessibility-controls {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        top: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 6px;
+        gap: 4px;
+    }
+    
+    .accessibility-controls button {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}
+
 html {
   font-size: 14px;
 }

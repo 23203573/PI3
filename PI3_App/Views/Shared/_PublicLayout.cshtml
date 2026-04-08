@@ -39,6 +39,21 @@
     </style>
 </head>
 <body>
+    <!-- Controles de Acessibilidade -->
+    <div class="accessibility-controls">
+        <button id="decrease-font-btn" onclick="decreaseFont()" title="Diminuir fonte (Ctrl + -)">
+            A-
+        </button>
+        <span class="zoom-info">
+            <span id="zoom-percentage">100%</span>
+        </span>
+        <button id="increase-font-btn" onclick="increaseFont()" title="Aumentar fonte (Ctrl + +)">
+            A+
+        </button>
+        <button onclick="resetFont()" title="Resetar fonte (Ctrl + 0)">
+            ↻
+        </button>
+    </div>
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark public-navbar border-bottom box-shadow mb-3">
             <div class="container-fluid">

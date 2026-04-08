@@ -10,6 +10,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
+    <!-- Controles de Acessibilidade -->
+    <div class="accessibility-controls">
+        <button id="decrease-font-btn" onclick="decreaseFont()" title="Diminuir fonte (Ctrl + -)">
+            A-
+        </button>
+        <span class="zoom-info">
+            <span id="zoom-percentage">100%</span>
+        </span>
+        <button id="increase-font-btn" onclick="increaseFont()" title="Aumentar fonte (Ctrl + +)">
+            A+
+        </button>
+        <button onclick="resetFont()" title="Resetar fonte (Ctrl + 0)">
+            ↻
+        </button>
+    </div>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3" style="background-color: #C76E4A;">
             <div class="container-fluid">
