@@ -1,0 +1,142 @@
+@model IEnumerable<PensionatoApp.Models.Suite>
+@{
+    ViewData["Title"] = "Todas as Suítes";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary">
+                <i class="fas fa-bed me-2"></i>
+                Todas as Suítes
+                <span class="badge bg-primary ms-2">@Model.Count() suítes</span>
+            </h2>
+            <p class="text-muted mb-0">Gestão completa de todas as suítes cadastradas</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-info me-2">
+                <i class="fas fa-calendar-check"></i> Ocupação
+            </a>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus"></i> Nova Suíte
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+        <h4>Nenhuma suíte cadastrada</h4>
+        <p class="mb-0">Cadastre a primeira suíte para começar a usar o sistema.</p>
+        <hr>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Cadastrar Primeira Suíte
+        </a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var suite in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card @(suite.Status == PensionatoApp.Models.StatusSuite.Ocupada ? "border-success" : suite.Status == PensionatoApp.Models.StatusSuite.Livre ? "border-info" : "border-warning")">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-door-closed"></i>
+                            Suíte @suite.Numero
+                        </h5>
+                        <span class="badge @(suite.Status == PensionatoApp.Models.StatusSuite.Ocupada ? "bg-success" : suite.Status == PensionatoApp.Models.StatusSuite.Livre ? "bg-info" : "bg-warning")">
+                            @suite.Status
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Preço:</strong> @suite.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</p>
+                        <p><strong>Tipo de Cama:</strong> @suite.TipoCama</p>
+                        
+                        <div class="mb-2">
+                            <strong>Comodidades:</strong>
+                            <div class="mt-1">
+                                @if (suite.ArCondicionado)
+                                {
+                                    <span class="badge bg-primary me-1">Ar-condicionado</span>
+                                }
+                                @if (suite.Ventilador)
+                                {
+                                    <span class="badge bg-secondary me-1">Ventilador</span>
+                                }
+                                @if (suite.WiFi)
+                                {
+                                    <span class="badge bg-info me-1">Wi-Fi</span>
+                                }
+                                @if (suite.Geladeira)
+                                {
+                                    <span class="badge bg-success me-1">Geladeira</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(suite.Observacoes))
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-sticky-note me-1"></i>
+                                    @suite.Observacoes
+                                </small>
+                            </div>
+                        }
+
+                        <div class="d-flex gap-1 w-100 mt-3">
+                            <a asp-action="Details" asp-route-id="@suite.Id" class="btn btn-outline-info btn-sm flex-fill" title="Ver Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@suite.Id" class="btn btn-outline-warning btn-sm flex-fill" title="Editar Suíte">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            @if (suite.Status == PensionatoApp.Models.StatusSuite.EmLimpeza)
+                            {
+                                <form asp-action="UpdateStatus" method="post" class="d-inline flex-fill">
+                                    <input type="hidden" name="id" value="@suite.Id" />
+                                    <input type="hidden" name="status" value="@((int)PensionatoApp.Models.StatusSuite.Livre)" />
+                                    <button type="submit" class="btn btn-outline-success btn-sm w-100" title="Marcar como Livre">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            }
+                            else if (suite.Status == PensionatoApp.Models.StatusSuite.Livre)
+                            {
+                                <form asp-action="UpdateStatus" method="post" class="d-inline flex-fill">
+                                    <input type="hidden" name="id" value="@suite.Id" />
+                                    <input type="hidden" name="status" value="@((int)PensionatoApp.Models.StatusSuite.EmLimpeza)" />
+                                    <button type="submit" class="btn btn-outline-warning btn-sm w-100" title="Marcar para Limpeza">
+                                        <i class="fas fa-broom"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

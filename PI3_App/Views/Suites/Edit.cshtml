@@ -1,0 +1,234 @@
+@model PensionatoApp.Models.Suite
+
+@{
+    ViewData["Title"] = "Editar Suíte";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary">
+                <i class="fas fa-edit me-2"></i>
+                Editar Suíte @Model.Numero
+            </h2>
+            <p class="text-muted mb-0">Modificar informações da suíte</p>
+        </div>
+        <div>
+            <a asp-action="TodasSuites" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para Lista
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-door-open me-2"></i>
+                        Informações da Suíte @Model.Numero
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Numero" class="form-label fw-semibold">
+                                    <i class="fas fa-hashtag me-1"></i>Número da Suíte
+                                </label>
+                                <input asp-for="Numero" class="form-control" placeholder="Ex: 101" />
+                                <span asp-validation-for="Numero" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrecoMensal" class="form-label fw-semibold">
+                                    <i class="fas fa-dollar-sign me-1"></i>Preço Mensal (R$)
+                                </label>
+                                <input asp-for="PrecoMensal" class="form-control" step="0.01" placeholder="Ex: 1500.00" />
+                                <span asp-validation-for="PrecoMensal" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TipoCama" class="form-label fw-semibold">
+                                    <i class="fas fa-bed me-1"></i>Tipo de Cama
+                                </label>
+                                <select asp-for="TipoCama" class="form-select">
+                                    <option value="">Selecione...</option>
+                                    <option value="Solteiro">Solteiro</option>
+                                    <option value="Casal">Casal</option>
+                                    <option value="Beliche">Beliche</option>
+                                </select>
+                                <span asp-validation-for="TipoCama" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label fw-semibold">
+                                    <i class="fas fa-info-circle me-1"></i>Status
+                                </label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="0">Livre</option>
+                                    <option value="1">Ocupada</option>
+                                    <option value="2">Limpeza</option>
+                                    <option value="3">Manutenção</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="ArCondicionado" />
+                                    <label class="form-check-label fw-semibold" asp-for="ArCondicionado">
+                                        <i class="fas fa-snowflake me-1"></i>Ar Condicionado
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3" id="precoArContainer">
+                                <label asp-for="PrecoArCondicionado" class="form-label fw-semibold">
+                                    <i class="fas fa-plus-circle me-1"></i>Preço Adicional Ar (R$)
+                                </label>
+                                <input asp-for="PrecoArCondicionado" class="form-control" step="0.01" placeholder="Ex: 100.00" />
+                                <span asp-validation-for="PrecoArCondicionado" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="Ventilador" />
+                                    <label class="form-check-label fw-semibold" asp-for="Ventilador">
+                                        <i class="fas fa-fan me-1"></i>Ventilador
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="WiFi" />
+                                    <label class="form-check-label fw-semibold" asp-for="WiFi">
+                                        <i class="fas fa-wifi me-1"></i>Wi-Fi
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="Geladeira" />
+                                    <label class="form-check-label fw-semibold" asp-for="Geladeira">
+                                        <i class="fas fa-snowflake me-1"></i>Geladeira
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="MesaEstudos" />
+                                    <label class="form-check-label fw-semibold" asp-for="MesaEstudos">
+                                        <i class="fas fa-desk me-1"></i>Mesa de Estudos
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="QuadrosDecorativos" />
+                                    <label class="form-check-label fw-semibold" asp-for="QuadrosDecorativos">
+                                        <i class="fas fa-image me-1"></i>Quadros Decorativos
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="ArmarioEmbutido" />
+                                    <label class="form-check-label fw-semibold" asp-for="ArmarioEmbutido">
+                                        <i class="fas fa-archive me-1"></i>Armário Embutido
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Observacoes" class="form-label fw-semibold">
+                                <i class="fas fa-sticky-note me-1"></i>Observações
+                            </label>
+                            <textarea asp-for="Observacoes" class="form-control" rows="3" placeholder="Observações adicionais sobre a suíte..."></textarea>
+                            <span asp-validation-for="Observacoes" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a asp-action="TodasSuites" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash"></i> Excluir
+                                </button>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-save"></i> Salvar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Tem certeza que deseja excluir a <strong>Suíte @Model.Numero</strong>?</p>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Atenção:</strong> Esta ação não pode ser desfeita. Todas as informações relacionadas à suíte serão perdidas.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sim, Excluir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function togglePrecoAr() {
+                if ($('#ArCondicionado').is(':checked')) {
+                    $('#precoArContainer').show();
+                    $('#PrecoArCondicionado').attr('required', true);
+                } else {
+                    $('#precoArContainer').hide();
+                    $('#PrecoArCondicionado').attr('required', false);
+                }
+            }
+
+            // Configurar estado inicial
+            togglePrecoAr();
+
+            // Mostrar/esconder campo de preço do ar condicionado
+            $('#ArCondicionado').change(togglePrecoAr);
+        });
+    </script>
+}

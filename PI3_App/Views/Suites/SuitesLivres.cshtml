@@ -1,0 +1,206 @@
+@model PensionatoApp.Controllers.SuitesController.SuitesLivresViewModel
+@{
+    ViewData["Title"] = "Suítes Livres";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            <i class="fas fa-door-open text-success"></i>
+            Suítes Livres
+        </h2>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-alt"></i> Filtrar por Período</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="SuitesLivres" method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Data Início</label>
+                        <input type="text" name="dataInicio" class="form-control data-input" placeholder="dd/mm/aaaa" value="@Model.DataInicio.ToString("dd/MM/yyyy")" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Data Fim</label>
+                        <input type="text" name="dataFim" class="form-control data-input" placeholder="dd/mm/aaaa" value="@Model.DataFim.ToString("dd/MM/yyyy")" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block w-100">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <a href="@Url.Action("SuitesLivres")" class="btn btn-secondary d-block w-100">
+                            <i class="fas fa-refresh"></i> Limpar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Período:</strong> @Model.DataInicio.ToString("dd/MM/yyyy") até @Model.DataFim.ToString("dd/MM/yyyy") 
+            | <strong>Suítes disponíveis:</strong> @Model.SuitesLivres.Count
+        </div>
+    </div>
+</div>
+
+@if (Model.SuitesLivres.Any())
+{
+    <div class="row">
+        @foreach (var suite in Model.SuitesLivres)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-door-open"></i>
+                            Suíte @suite.Numero
+                        </h5>
+                        <span class="badge bg-light text-success">Livre</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Preço Mensal:</strong>
+                            </div>
+                            <div class="col-6">
+                                <span class="text-success fw-bold">@suite.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <strong>Tipo de Cama:</strong>
+                            </div>
+                            <div class="col-6">
+                                @if ((int)suite.TipoCama == 0)
+                                {
+                                    <span class="badge" style="background-color: #6f42c1 !important; color: white !important;">@suite.TipoCama</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">@suite.TipoCama</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <h6><i class="fas fa-check-circle text-success"></i> Comodidades Incluídas:</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row small">
+                            @if (suite.WiFi)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-wifi text-success"></i> WiFi
+                                </div>
+                            }
+                            @if (suite.Ventilador)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-fan text-success"></i> Ventilador
+                                </div>
+                            }
+                            @if (suite.Geladeira)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-snowflake text-success"></i> Geladeira
+                                </div>
+                            }
+                            @if (suite.MesaEstudos)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-desk text-success"></i> Mesa de Estudos
+                                </div>
+                            }
+                            @if (suite.ArmarioEmbutido)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-cube text-success"></i> Armário
+                                </div>
+                            }
+                            @if (suite.QuadrosDecorativos)
+                            {
+                                <div class="col-6 mb-1">
+                                    <i class="fas fa-image text-success"></i> Decoração
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (suite.ArCondicionado)
+                        {
+                            <div class="alert alert-warning small mt-2 mb-2">
+                                <i class="fas fa-snowflake"></i>
+                                <strong>Ar Condicionado:</strong> +@suite.PrecoArCondicionado.ToString("C", new System.Globalization.CultureInfo("pt-BR"))/mês
+                            </div>
+                        }
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="@Url.Action("Details", "Suites", new { id = suite.Id })" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> Ver Detalhes
+                            </a>
+                            <a href="@Url.Action("Create", "Reservas", new { suiteId = suite.Id })" 
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Fazer Reserva
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <h4>Nenhuma suíte disponível</h4>
+                <p class="mb-0">
+                    Não há suítes livres para o período de 
+                    <strong>@Model.DataInicio.ToString("dd/MM/yyyy")</strong> até 
+                    <strong>@Model.DataFim.ToString("dd/MM/yyyy")</strong>.
+                </p>
+                <hr>
+                <p class="mb-0">
+                    <a href="@Url.Action("SuitesLivres")" class="btn btn-primary">
+                        <i class="fas fa-calendar"></i> Tentar outro período
+                    </a>
+                    <a href="@Url.Action("Index", "Suites")" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Ver todas as suítes
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+        </a>
+        <a href="@Url.Action("Index", "Suites")" class="btn btn-primary">
+            <i class="fas fa-list"></i> Gerenciar Suítes
+        </a>
+    </div>
+</div>

@@ -1,0 +1,305 @@
+@model PensionatoApp.Controllers.PublicController.ReservaPublicaViewModel
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<div class="container">
+    <!-- Título centralizado do pensionato -->
+    <div class="text-center" style="margin: 2rem 0 3rem 0;">
+        <h1 style="font-size: 3rem; color: #007bff; font-weight: bold; margin-bottom: 0.5rem;">Pensionato da Penha</h1>
+        <p style="font-size: 1.2rem; color: #6c757d; margin-bottom: 0;">Reservar Acomodação</p>
+    </div>
+    
+    <form asp-action="ReservarSuite" method="post" class="needs-validation" novalidate>
+        <input type="hidden" asp-for="SuiteId" />
+        
+        <div class="row">
+            <!-- Informações da Suíte -->
+            <div class="col-md-4">
+                <div class="card border-info mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-door-open"></i>
+                            Suíte @Model.Suite?.Numero
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Preço Mensal:</strong> @Model.Suite?.PrecoMensal.ToString("C")</p>
+                        <p><strong>Tipo de Cama:</strong> @Model.Suite?.TipoCama</p>
+                        
+                        @if (Model.Suite?.ArCondicionado == true)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="TemArCondicionado" />
+                                <label class="form-check-label" asp-for="TemArCondicionado">
+                                    Ar Condicionado (+@Model.Suite.PrecoArCondicionado.ToString("C")/mês)
+                                </label>
+                            </div>
+                        }
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" asp-for="TemGaragem" />
+                            <label class="form-check-label" asp-for="TemGaragem">
+                                Garagem (+@Model.PrecoGaragem.ToString("C")/mês)
+                            </label>
+                        </div>
+                        
+                        <hr>
+                        <small class="text-muted">
+                            <strong>Comodidades incluídas:</strong><br>
+                            @if (Model.Suite?.WiFi == true) 
+                            { 
+                                <span><i class="fas fa-wifi"></i> WiFi<br></span>
+                            }
+                            @if (Model.Suite?.Ventilador == true) 
+                            { 
+                                <span><i class="fas fa-fan"></i> Ventilador<br></span>
+                            }
+                            @if (Model.Suite?.Geladeira == true) 
+                            { 
+                                <span><i class="fas fa-snowflake"></i> Geladeira<br></span>
+                            }
+                            @if (Model.Suite?.MesaEstudos == true) 
+                            { 
+                                <span><i class="fas fa-desk"></i> Mesa de Estudos<br></span>
+                            }
+                            @if (Model.Suite?.ArmarioEmbutido == true) 
+                            { 
+                                <span><i class="fas fa-cube"></i> Armário<br></span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulário de Reserva -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar"></i> Dados da Reserva</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Data de Entrada</label>
+                                <input name="DataEntradaString" id="dataEntrada" type="text" class="form-control" 
+                                       placeholder="dd/mm/aaaa" maxlength="10" 
+                                       value="@Model.DataEntrada.ToString("dd/MM/yyyy")" required />
+                                <span class="text-danger" data-valmsg-for="DataEntrada" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Data de Saída</label>
+                                <input name="DataSaidaString" id="dataSaida" type="text" class="form-control" 
+                                       placeholder="dd/mm/aaaa" maxlength="10" 
+                                       value="@Model.DataSaida.ToString("dd/MM/yyyy")" required />
+                                <span class="text-danger" data-valmsg-for="DataSaida" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ValorCaucao" class="form-label">Valor da Caução</label>
+                                <input asp-for="ValorCaucao" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="ValorCaucao" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ValorAdiantado" class="form-label">Valor Adiantado</label>
+                                <input asp-for="ValorAdiantado" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="ValorAdiantado" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user"></i> Seus Dados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="NomeCompleto" class="form-label">Nome Completo *</label>
+                                <input asp-for="NomeCompleto" type="text" class="form-control" required />
+                                <span asp-validation-for="NomeCompleto" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">E-mail *</label>
+                                <input asp-for="Email" type="email" class="form-control" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Telefone" class="form-label">Telefone *</label>
+                                <input asp-for="Telefone" type="tel" class="form-control" required />
+                                <span asp-validation-for="Telefone" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Documento" class="form-label">CPF/RG *</label>
+                                <input asp-for="Documento" type="text" class="form-control" required />
+                                <span asp-validation-for="Documento" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DataNascimento" class="form-label">Data de Nascimento *</label>
+                                <input asp-for="DataNascimento" type="date" class="form-control" required />
+                                <span asp-validation-for="DataNascimento" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="Endereco" class="form-label">Endereço Completo *</label>
+                                <textarea asp-for="Endereco" class="form-control" rows="2" required></textarea>
+                                <span asp-validation-for="Endereco" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Importante:</strong> Após enviar a reserva, nossa equipe entrará em contato para confirmar os detalhes e finalizar o processo.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Enviar Reserva
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger mt-3">
+            <h6><i class="fas fa-exclamation-triangle"></i> Por favor, corrija os erros abaixo:</h6>
+            <asp:validation-summary class="text-danger" />
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            var dataEntrada = $('#dataEntrada');
+            var dataSaida = $('#dataSaida');
+
+            // Máscara para formato dd/mm/aaaa
+            function aplicarMascara(campo) {
+                campo.on('input', function() {
+                    var valor = this.value.replace(/\D/g, '');
+                    if (valor.length >= 3 && valor.length <= 4) {
+                        valor = valor.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+                    } else if (valor.length >= 5) {
+                        valor = valor.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+                    }
+                    this.value = valor;
+                });
+            }
+
+            aplicarMascara(dataEntrada);
+            aplicarMascara(dataSaida);
+
+            // Função para converter dd/mm/aaaa para Date
+            function converterData(dataStr) {
+                var partes = dataStr.split('/');
+                if (partes.length !== 3) return null;
+                var dia = parseInt(partes[0]);
+                var mes = parseInt(partes[1]) - 1;
+                var ano = parseInt(partes[2]);
+                return new Date(ano, mes, dia);
+            }
+
+            // Função para validar formato
+            function validarFormato(dataStr) {
+                var regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+                return regex.test(dataStr);
+            }
+
+            // Validação de período
+            function validarPeriodo() {
+                var entradaValue = dataEntrada.val();
+                var saidaValue = dataSaida.val();
+                
+                if (entradaValue && saidaValue && validarFormato(entradaValue) && validarFormato(saidaValue)) {
+                    var dataEntradaObj = converterData(entradaValue);
+                    var dataSaidaObj = converterData(saidaValue);
+                    
+                    if (dataEntradaObj && dataSaidaObj) {
+                        var hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
+                        
+                        if (dataEntradaObj < hoje) {
+                            dataEntrada.addClass('is-invalid');
+                            return false;
+                        } else {
+                            dataEntrada.removeClass('is-invalid');
+                        }
+                        
+                        if (dataSaidaObj <= dataEntradaObj) {
+                            dataSaida.addClass('is-invalid');
+                            return false;
+                        } else {
+                            dataSaida.removeClass('is-invalid');
+                        }
+                    }
+                }
+                return true;
+            }
+
+            dataEntrada.on('blur', validarPeriodo);
+            dataSaida.on('blur', validarPeriodo);
+
+            // Validação no envio
+            $('form').on('submit', function(e) {
+                var entradaValue = dataEntrada.val();
+                var saidaValue = dataSaida.val();
+
+                if (!entradaValue || !saidaValue) {
+                    e.preventDefault();
+                    alert('Por favor, preencha ambas as datas.');
+                    return false;
+                }
+
+                if (!validarFormato(entradaValue) || !validarFormato(saidaValue)) {
+                    e.preventDefault();
+                    alert('Formato de data inválido. Use dd/mm/aaaa');
+                    return false;
+                }
+
+                var dataEntradaObj = converterData(entradaValue);
+                var dataSaidaObj = converterData(saidaValue);
+                var hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                if (!dataEntradaObj || !dataSaidaObj) {
+                    e.preventDefault();
+                    alert('Data inválida. Verifique se a data existe.');
+                    return false;
+                }
+
+                if (dataEntradaObj < hoje) {
+                    e.preventDefault();
+                    alert('A data de entrada não pode ser anterior ao dia de hoje.');
+                    return false;
+                }
+
+                if (dataSaidaObj <= dataEntradaObj) {
+                    e.preventDefault();
+                    alert('A data de saída deve ser posterior à data de entrada.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

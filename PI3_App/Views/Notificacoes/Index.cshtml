@@ -1,0 +1,185 @@
+@model IEnumerable<PensionatoApp.Models.Notificacao>
+
+@{
+    ViewData["Title"] = "Notificações";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-primary">
+            <i class="fas fa-bell me-2"></i>
+            Notificações
+            <span class="badge bg-danger ms-2">@ViewBag.NaoLidas não lidas</span>
+            <span class="badge bg-secondary ms-1">@ViewBag.Total total</span>
+        </h2>
+        <p class="text-muted mb-0">Central de alertas e avisos importantes do sistema</p>
+    </div>
+    <div>
+        @if (ViewBag.NaoLidas > 0)
+        {
+            <form asp-action="MarcarTodasComoLidas" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-success me-2">
+                    <i class="fas fa-check-double"></i> Marcar Todas como Lidas
+                </button>
+            </form>
+        }
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var notificacao in Model)
+        {
+            var corCard = "";
+            var corIcone = "";
+            var icone = "";
+            
+            switch (notificacao.Tipo)
+            {
+                case PensionatoApp.Models.TipoNotificacao.CheckOut:
+                    corCard = "border-danger";
+                    corIcone = "text-danger";
+                    icone = "fas fa-sign-out-alt";
+                    break;
+                case PensionatoApp.Models.TipoNotificacao.VencimentoAluguel:
+                    corCard = "border-warning";
+                    corIcone = "text-warning";
+                    icone = "fas fa-clock";
+                    break;
+                case PensionatoApp.Models.TipoNotificacao.PagamentoPendente:
+                    corCard = "border-danger";
+                    corIcone = "text-danger";
+                    icone = "fas fa-dollar-sign";
+                    break;
+                case PensionatoApp.Models.TipoNotificacao.Manutencao:
+                    corCard = "border-info";
+                    corIcone = "text-info";
+                    icone = "fas fa-tools";
+                    break;
+                default:
+                    corCard = "border-primary";
+                    corIcone = "text-primary";
+                    icone = "fas fa-info-circle";
+                    break;
+            }
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 @corCard @(notificacao.Lida ? "" : "border-3")">
+                    <div class="card-header @(notificacao.Lida ? "bg-light text-muted" : "bg-white")">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex align-items-center">
+                                <i class="@icone @corIcone me-2 fs-5"></i>
+                                <h6 class="mb-0 @(notificacao.Lida ? "text-muted" : "text-dark")">
+                                    @notificacao.Titulo
+                                </h6>
+                            </div>
+                            @if (!notificacao.Lida)
+                            {
+                                <span class="badge bg-danger">Nova</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text @(notificacao.Lida ? "text-muted" : "text-dark")">
+                            @notificacao.Mensagem
+                        </p>
+                        
+                        @if (notificacao.Reserva != null)
+                        {
+                            <div class="border-top pt-2 mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-bed me-1"></i>
+                                    <strong>Suíte:</strong> @notificacao.Reserva.Suite?.Numero
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-user me-1"></i>
+                                    <strong>Hóspede:</strong> @notificacao.Reserva.Hospede?.NomeCompleto
+                                </small>
+                                @if (notificacao.Tipo == PensionatoApp.Models.TipoNotificacao.CheckOut || notificacao.Tipo == PensionatoApp.Models.TipoNotificacao.VencimentoAluguel)
+                                {
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <strong>Saída:</strong> @notificacao.Reserva.DataSaida.ToString("dd/MM/yyyy")
+                                    </small>
+                                }
+                            </div>
+                        }
+                        
+                        @if (notificacao.Pagamento != null)
+                        {
+                            <div class="border-top pt-2 mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    <strong>Valor:</strong> @notificacao.Pagamento.Valor.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <strong>Vencimento:</strong> @notificacao.Pagamento.DataVencimento.ToString("dd/MM/yyyy")
+                                </small>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                @notificacao.DataCriacao.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                            <div class="btn-group" role="group">
+                                @if (!notificacao.Lida)
+                                {
+                                    <form asp-action="MarcarComoLida" asp-route-id="@notificacao.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-success btn-sm" title="Marcar como lida">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (notificacao.ReservaId != null)
+                                {
+                                    <a asp-controller="Reservas" asp-action="Details" asp-route-id="@notificacao.ReservaId" class="btn btn-outline-primary btn-sm" title="Ver reserva">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                }
+                                
+                                @if (notificacao.PagamentoId != null)
+                                {
+                                    <a asp-controller="Pagamentos" asp-action="Index" class="btn btn-outline-info btn-sm" title="Ver pagamentos">
+                                        <i class="fas fa-money-bill"></i>
+                                    </a>
+                                }
+                                
+                                <form asp-action="Delete" asp-route-id="@notificacao.Id" method="post" style="display:inline;" 
+                                      onsubmit="return confirm('Tem certeza que deseja excluir esta notificação?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-success text-center py-5">
+        <h4><i class="fas fa-check-circle me-2"></i>Nenhuma notificação encontrada</h4>
+        <p class="mb-0">Tudo está em ordem! Não há avisos ou alertas no momento.</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto-refresh da página a cada 5 minutos para verificar novas notificações
+        setTimeout(function() {
+            location.reload();
+        }, 300000);
+    </script>
+}

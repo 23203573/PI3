@@ -1,0 +1,168 @@
+@model PensionatoApp.Models.Reserva
+@{
+    ViewData["Title"] = "Nova Reserva";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>
+            <i class="fas fa-calendar-plus text-success"></i>
+            Criar Nova Reserva
+        </h2>
+        <hr />
+        
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="HospedeId" class="form-label">Hóspede *</label>
+                        <select asp-for="HospedeId" class="form-select" asp-items="ViewBag.HospedeId">
+                            <option value="">Selecione um hóspede</option>
+                        </select>
+                        <span asp-validation-for="HospedeId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="SuiteId" class="form-label">Suíte *</label>
+                        <select asp-for="SuiteId" class="form-select" asp-items="ViewBag.SuiteId">
+                            <option value="">Selecione uma suíte</option>
+                        </select>
+                        <span asp-validation-for="SuiteId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="DataEntrada" class="form-label">Data de Entrada *</label>
+                        <input asp-for="DataEntrada" type="text" class="form-control data-input" placeholder="dd/mm/aaaa" />
+                        <span asp-validation-for="DataEntrada" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="DataSaida" class="form-label">Data de Saída *</label>
+                        <input asp-for="DataSaida" type="text" class="form-control data-input" placeholder="dd/mm/aaaa" />
+                        <span asp-validation-for="DataSaida" class="text-danger"></span>
+                        <small class="form-text text-muted">Padrão: Janeiro do ano seguinte</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Origem" class="form-label">Origem da Reserva</label>
+                        <select asp-for="Origem" class="form-select">
+                            <option value="Site">Site</option>
+                            <option value="Telefone">Telefone</option>
+                            <option value="Presencial">Presencial</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus-circle"></i> Serviços Adicionais</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input asp-for="TemGaragem" class="form-check-input" />
+                                <label asp-for="TemGaragem" class="form-check-label">
+                                    Garagem (+R$ 120,00/mês)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input asp-for="TemArCondicionado" class="form-check-input" />
+                                <label asp-for="TemArCondicionado" class="form-check-label">
+                                    Ar-condicionado (+R$ 150,00/mês + energia)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-money-bill-wave"></i> Valores Financeiros</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ValorAdiantado" class="form-label">Valor Adiantado</label>
+                                <input asp-for="ValorAdiantado" class="form-control" placeholder="0,00" />
+                                <span asp-validation-for="ValorAdiantado" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ValorCaucao" class="form-label">Valor Caução</label>
+                                <input asp-for="ValorCaucao" class="form-control" placeholder="0,00" />
+                                <span asp-validation-for="ValorCaucao" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Observacoes" class="form-label">Observações</label>
+                <textarea asp-for="Observacoes" class="form-control" rows="3" placeholder="Informações adicionais sobre a reserva"></textarea>
+                <span asp-validation-for="Observacoes" class="text-danger"></span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Criar Reserva
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Informações</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Regras de Reserva:</strong></p>
+                <ul>
+                    <li>Contratos válidos até janeiro do ano seguinte</li>
+                    <li>Pagamento mensal vencido</li>
+                    <li>Valor adiantado quita o último aluguel</li>
+                    <li>Caução devolvida com juros de poupança</li>
+                </ul>
+                
+                <hr/>
+                
+                <p><strong>Serviços Inclusos:</strong></p>
+                <ul>
+                    <li>Limpeza semanal</li>
+                    <li>Wi-Fi</li>
+                    <li>Uso das áreas comuns</li>
+                    <li>Mobília completa</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

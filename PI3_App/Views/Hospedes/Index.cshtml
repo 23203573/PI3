@@ -1,0 +1,101 @@
+@model IEnumerable<PensionatoApp.Models.Hospede>
+@{
+    ViewData["Title"] = "Gerenciar Hóspedes";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            <i class="fas fa-users text-primary"></i>
+            Gerenciar Hóspedes
+        </h2>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Adicionar Novo Hóspede
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nome Completo</th>
+                    <th>Documento</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                    <th>Reserva Ativa</th>
+                    <th>Data Cadastro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var hospede in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@hospede.NomeCompleto</strong>
+                        </td>
+                        <td>@hospede.Documento</td>
+                        <td>
+                            <i class="fas fa-phone"></i>
+                            @hospede.Telefone
+                        </td>
+                        <td>
+                            <i class="fas fa-envelope"></i>
+                            @hospede.Email
+                        </td>
+                        <td>
+                            @if (hospede.Reservas.Any())
+                            {
+                                var reservaAtiva = hospede.Reservas.First();
+                                <span class="badge bg-success">
+                                    <i class="fas fa-bed"></i>
+                                    Suíte @reservaAtiva.Suite.Numero
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Sem reserva</span>
+                            }
+                        </td>
+                        <td>@hospede.DataCadastro.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@hospede.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@hospede.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                @if (!hospede.Reservas.Any())
+                                {
+                                    <form asp-action="Delete" asp-route-id="@hospede.Id" method="post" class="d-inline" 
+                                          onsubmit="return confirm('Tem certeza que deseja excluir este hóspede?')">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i>
+        Nenhum hóspede cadastrado. <a asp-action="Create">Clique aqui para adicionar o primeiro hóspede.</a>
+    </div>
+}

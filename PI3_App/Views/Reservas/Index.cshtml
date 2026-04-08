@@ -1,0 +1,104 @@
+@model IEnumerable<PensionatoApp.Models.Reserva>
+@{
+    ViewData["Title"] = "Gerenciar Reservas";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            <i class="fas fa-calendar-check text-primary"></i>
+            Gerenciar Reservas
+        </h2>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nova Reserva
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Hóspede</th>
+                    <th>Suíte</th>
+                    <th>Entrada</th>
+                    <th>Saída</th>
+                    <th>Valor Mensal</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reserva in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@reserva.Hospede.NomeCompleto</strong><br/>
+                            <small class="text-muted">@reserva.Hospede.Telefone</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                <i class="fas fa-bed"></i>
+                                Suíte @reserva.Suite.Numero
+                            </span>
+                        </td>
+                        <td>@reserva.DataEntrada.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>@reserva.DataSaida.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>@reserva.ValorMensalTotal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>
+                            @switch (reserva.Status)
+                            {
+                                case PensionatoApp.Models.StatusReserva.Ativa:
+                                    <span class="badge bg-success">Ativa</span>
+                                    break;
+                                case PensionatoApp.Models.StatusReserva.Finalizada:
+                                    <span class="badge bg-secondary">Finalizada</span>
+                                    break;
+                                case PensionatoApp.Models.StatusReserva.Cancelada:
+                                    <span class="badge bg-danger">Cancelada</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@reserva.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="GerarContrato" asp-route-id="@reserva.Id" class="btn btn-outline-info btn-sm" target="_blank">
+                                    <i class="fas fa-file-contract"></i>
+                                </a>
+                                @if (reserva.Status == PensionatoApp.Models.StatusReserva.Ativa)
+                                {
+                                    <form asp-action="Finalizar" asp-route-id="@reserva.Id" method="post" class="d-inline" 
+                                          onsubmit="return confirm('Tem certeza que deseja finalizar esta reserva?')">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i>
+        Nenhuma reserva cadastrada. <a asp-action="Create">Clique aqui para criar a primeira reserva.</a>
+    </div>
+}

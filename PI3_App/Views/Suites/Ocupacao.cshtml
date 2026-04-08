@@ -1,0 +1,221 @@
+@model IEnumerable<PensionatoApp.Models.Suite>
+
+@{
+    ViewData["Title"] = "Ocupação das Suítes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-primary">
+            <i class="fas fa-calendar-alt me-2"></i>
+            Ocupação das Suítes
+            <span class="badge bg-primary ms-2">@ViewBag.TotalSuites suítes</span>
+        </h2>
+        <p class="text-muted mb-0">
+            <span class="badge bg-success me-2">@ViewBag.SuitesLivres livres</span>
+            <span class="badge bg-warning">@ViewBag.SuitesOcupadas ocupadas</span>
+        </p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-primary me-2">
+            <i class="fas fa-list"></i> Gestão de Suítes
+        </a>
+        <a asp-controller="Reservas" asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nova Reserva
+        </a>
+    </div>
+</div>
+
+@if (Model.Any(s => s.Reservas.Any(r => r.Status == PensionatoApp.Models.StatusReserva.Ativa)))
+{
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2"></i>
+                Cronograma de Ocupação
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="text-center" style="width: 8%;">
+                                <i class="fas fa-door-open me-1"></i>Suíte
+                            </th>
+                            <th scope="col" style="width: 23%;">
+                                <i class="fas fa-user me-1"></i>Hóspede
+                            </th>
+                            <th scope="col" style="width: 13%;">
+                                <i class="fas fa-calendar-plus me-1"></i>Entrada
+                            </th>
+                            <th scope="col" style="width: 13%;">
+                                <i class="fas fa-calendar-minus me-1"></i>Saída
+                            </th>
+                            <th scope="col" class="text-center" style="width: 10%;">
+                                <i class="fas fa-dollar-sign me-1"></i>Valor
+                            </th>
+                            <th scope="col" class="text-center" style="width: 12%;">
+                                <i class="fas fa-cogs me-1"></i>Serviços
+                            </th>
+                            <th scope="col" class="text-center" style="width: 10%;">
+                                <i class="fas fa-calendar-check me-1"></i>Reserva
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var suite in Model.Where(s => s.Reservas.Any(r => r.Status == PensionatoApp.Models.StatusReserva.Ativa)).OrderBy(s => s.Numero))
+                        {
+                            var reservasAtivas = suite.Reservas
+                                .Where(r => r.Status == PensionatoApp.Models.StatusReserva.Ativa)
+                                .OrderBy(r => r.DataEntrada)
+                                .ToList();
+                            
+                            @for (int i = 0; i < reservasAtivas.Count; i++)
+                            {
+                                var reserva = reservasAtivas[i];
+                                var isFirstRow = i == 0;
+                                var diasRestantes = (reserva.DataSaida - DateTime.Now).Days;
+                                
+                                <tr class="table-success">
+                                    @if (isFirstRow)
+                                    {
+                                        <td class="text-center align-middle fw-bold" rowspan="@reservasAtivas.Count">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="badge bg-primary fs-6 p-2 mb-1">
+                                                    @suite.Numero
+                                                </span>
+                                                <div class="small text-muted">
+                                                    Base: @suite.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))
+                                                </div>
+                                                @if (reservasAtivas.Count > 1)
+                                                {
+                                                    <div class="small text-warning mt-1">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                        Múltiplas reservas
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                    
+                                    <td>
+                                        <div class="fw-semibold text-dark">@(reserva.Hospede?.NomeCompleto ?? "N/A")</div>
+                                        @if (!string.IsNullOrEmpty(reserva.Hospede?.Email))
+                                        {
+                                            <div class="small text-muted">
+                                                <i class="fas fa-envelope me-1"></i>@reserva.Hospede.Email
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(reserva.Hospede?.Telefone))
+                                        {
+                                            <div class="small text-muted">
+                                                <i class="fas fa-phone me-1"></i>@reserva.Hospede.Telefone
+                                            </div>
+                                        }
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="fw-semibold">@reserva.DataEntrada.ToString("dd/MM/yyyy")</div>
+                                        <div class="small text-muted">@reserva.DataEntrada.ToString("dddd", new System.Globalization.CultureInfo("pt-BR")).Substring(0, 3)</div>
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="fw-semibold">@reserva.DataSaida.ToString("dd/MM/yyyy")</div>
+                                        <div class="small text-muted">@reserva.DataSaida.ToString("dddd", new System.Globalization.CultureInfo("pt-BR")).Substring(0, 3)</div>
+                                        @if (diasRestantes > 0)
+                                        {
+                                            <div class="small text-info">
+                                                <i class="fas fa-clock me-1"></i>@diasRestantes dias restantes
+                                            </div>
+                                        }
+                                        else if (diasRestantes == 0)
+                                        {
+                                            <div class="small text-warning">
+                                                <i class="fas fa-exclamation me-1"></i>Vence hoje!
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="small text-danger">
+                                                <i class="fas fa-times me-1"></i>Vencida há @Math.Abs(diasRestantes) dias
+                                            </div>
+                                        }
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <div class="fw-bold text-success">@reserva.ValorMensalTotal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</div>
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                            @if (reserva.TemArCondicionado)
+                                            {
+                                                <span class="badge bg-info bg-opacity-75 text-white" title="Ar Condicionado">
+                                                    <i class="fas fa-snowflake"></i>
+                                                </span>
+                                            }
+                                            @if (reserva.TemGaragem)
+                                            {
+                                                <span class="badge bg-warning bg-opacity-75 text-white" title="Garagem">
+                                                    <i class="fas fa-car"></i>
+                                                </span>
+                                            }
+                                            @if (!reserva.TemArCondicionado && !reserva.TemGaragem)
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-controller="Reservas" asp-action="Details" asp-route-id="@reserva.Id" class="btn btn-outline-info btn-sm" title="Detalhes da Reserva">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-controller="Reservas" asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-outline-warning btn-sm" title="Editar Reserva">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-muted">
+            <div class="row">
+                <div class="col-md-6">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        <span class="badge bg-success me-1">Ativa</span> Reserva em andamento |
+                        <span class="badge bg-warning ms-1">⚠️</span> Múltiplas reservas na mesma suíte
+                    </small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small>
+                        <i class="fas fa-calendar me-1"></i>
+                        Atualizado em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center py-5">
+        <h4><i class="fas fa-info-circle me-2"></i>Nenhuma reserva ativa encontrada</h4>
+        <p class="mb-3">Não há reservas ativas no momento.</p>
+        <div class="btn-group" role="group">
+            <a asp-controller="Reservas" asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Criar Nova Reserva
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>Ver Todas as Suítes
+            </a>
+        </div>
+    </div>
+}

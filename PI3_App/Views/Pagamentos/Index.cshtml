@@ -1,0 +1,175 @@
+@model IEnumerable<PensionatoApp.Models.Pagamento>
+@{
+    ViewData["Title"] = "Gerenciar Pagamentos";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            <i class="fas fa-money-check-alt text-primary"></i>
+            Gerenciar Pagamentos
+        </h2>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="btn-group" role="group">
+            <a asp-action="Index" class="btn @(ViewBag.StatusFiltro == null ? "btn-primary" : "btn-outline-primary")">
+                <i class="fas fa-list"></i> Todos
+            </a>
+            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pendente" 
+               class="btn @(ViewBag.StatusFiltro?.ToString() == "Pendente" ? "btn-danger" : "btn-outline-danger")">
+                <i class="fas fa-clock"></i> Pendentes
+            </a>
+            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pago" 
+               class="btn @(ViewBag.StatusFiltro?.ToString() == "Pago" ? "btn-success" : "btn-outline-success")">
+                <i class="fas fa-check"></i> Pagos
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Relatorio" class="btn btn-info">
+            <i class="fas fa-chart-bar"></i> Relatórios
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Hóspede</th>
+                    <th>Suíte</th>
+                    <th>Descrição</th>
+                    <th>Vencimento</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pagamento in Model)
+                {
+                    var isAtrasado = pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente && 
+                                     pagamento.DataVencimento < DateTime.Now;
+                    
+                    <tr class="@(isAtrasado ? "table-danger" : "")">
+                        <td>
+                            <strong>@pagamento.Reserva.Hospede.NomeCompleto</strong><br/>
+                            <small class="text-muted">@pagamento.Reserva.Hospede.Telefone</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                <i class="fas fa-bed"></i>
+                                Suíte @pagamento.Reserva.Suite.Numero
+                            </span>
+                        </td>
+                        <td>@pagamento.Descricao</td>
+                        <td>
+                            @pagamento.DataVencimento.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))
+                            @if (isAtrasado)
+                            {
+                                <br/><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Atrasado</small>
+                            }
+                        </td>
+                        <td>@pagamento.Valor.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>
+                            @switch (pagamento.Status)
+                            {
+                                case PensionatoApp.Models.StatusPagamento.Pendente:
+                                    <span class="badge @(isAtrasado ? "bg-danger" : "bg-warning")">
+                                        @(isAtrasado ? "Atrasado" : "Pendente")
+                                    </span>
+                                    break;
+                                case PensionatoApp.Models.StatusPagamento.Pago:
+                                    <span class="badge bg-success">Pago</span>
+                                    <br/><small class="text-muted">@pagamento.DataPagamento?.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</small>
+                                    break;
+                                case PensionatoApp.Models.StatusPagamento.Parcelado:
+                                    <span class="badge bg-info">Parcelado</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@pagamento.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                
+                                @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente)
+                                {
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#pagamentoModal-@pagamento.Id">
+                                        <i class="fas fa-money-bill"></i>
+                                    </button>
+                                }
+                                
+                                @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pago)
+                                {
+                                    <a asp-action="GerarRecibo" asp-route-id="@pagamento.Id" class="btn btn-outline-info btn-sm" target="_blank">
+                                        <i class="fas fa-receipt"></i>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Modais para registrar pagamentos -->
+    @foreach (var pagamento in Model.Where(p => p.Status == PensionatoApp.Models.StatusPagamento.Pendente))
+    {
+        <div class="modal fade" id="pagamentoModal-@pagamento.Id" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrar Pagamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form asp-action="RegistrarPagamento" method="post">
+                        <div class="modal-body">
+                            <input type="hidden" name="id" value="@pagamento.Id" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Valor a Pagar</label>
+                                <input type="number" name="valorPago" class="form-control" step="0.01" value="@pagamento.Valor" required />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Forma de Pagamento</label>
+                                <select name="formaPagamento" class="form-select" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="0">Dinheiro</option>
+                                    <option value="1">Pix</option>
+                                    <option value="2">Cheque</option>
+                                    <option value="3">Transferência Bancária</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea name="observacoes" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Confirmar Pagamento</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i>
+        Nenhum pagamento encontrado.
+    </div>
+}

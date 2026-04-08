@@ -1,0 +1,163 @@
+@model PensionatoApp.Controllers.HomeController.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard Administrativo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-tachometer-alt text-primary"></i>
+            Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-bed fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">Total de Suítes</h5>
+                    <h3 class="text-primary">@Model.TotalSuites</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">Suítes Ocupadas</h5>
+                    <h3 class="text-success">@Model.SuitesOcupadas</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="@Url.Action("SuitesLivres", "Suites")" class="text-decoration-none">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-door-open fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">Suítes Livres</h5>
+                    <h3 class="text-info">@Model.SuitesLivres</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "Hospedes")" class="text-decoration-none">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">Hóspedes Ativos</h5>
+                    <h3 class="text-warning">@Model.TotalHospedes</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "Reservas")" class="text-decoration-none">
+            <div class="card border-secondary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-2x text-secondary mb-2"></i>
+                    <h5 class="card-title">Reservas Ativas</h5>
+                    <h3 class="text-secondary">@Model.ReservasAtivas</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-danger">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                <h5 class="card-title">Pagamentos Pendentes</h5>
+                <h3 class="text-danger">@Model.PagamentosPendentes</h3>
+                <a href="@Url.Action("Pendentes", "Pagamentos")" class="btn btn-sm btn-danger">Ver Detalhes</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="@Url.Action("Relatorio", "Pagamentos")" class="text-decoration-none">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">Receita Mensal</h5>
+                    <h3 class="text-success">@Model.ReceitaMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "Notificacoes")" class="text-decoration-none">
+            <div class="card border-@(Model.NotificacoesPendentes > 0 ? "warning" : "info")">
+                <div class="card-body text-center">
+                    <i class="fas fa-bell fa-2x text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info") mb-2"></i>
+                    <h5 class="card-title">Notificações</h5>
+                    <h3 class="text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info")">@Model.NotificacoesPendentes</h3>
+                    @if (Model.NotificacoesPendentes > 0)
+                    {
+                        <small class="text-warning">Requer atenção</small>
+                    }
+                    else
+                    {
+                        <small class="text-info">Tudo em ordem</small>
+                    }
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Taxa de Ocupação</h5>
+            </div>
+            <div class="card-body">
+                @{
+                    var taxaOcupacao = Model.TotalSuites > 0 ? (Model.SuitesOcupadas * 100 / Model.TotalSuites) : 0;
+                }
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar" role="progressbar" style="width: @taxaOcupacao%; background-color: var(--cor-dourado);">
+                        @taxaOcupacao%
+                    </div>
+                </div>
+                <p class="text-muted">@Model.SuitesOcupadas de @Model.TotalSuites suítes ocupadas</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-tools"></i> Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Create", "Reservas")" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nova Reserva
+                    </a>
+                    <a href="@Url.Action("Create", "Hospedes")" class="btn btn-info">
+                        <i class="fas fa-user-plus"></i> Novo Hóspede
+                    </a>
+                    <a href="@Url.Action("Index", "Pagamentos")" class="btn btn-success">
+                        <i class="fas fa-money-check-alt"></i> Gerenciar Pagamentos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

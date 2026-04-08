@@ -1,0 +1,197 @@
+/* Paleta de Cores - Identidade Visual */
+:root {
+    --cor-branco: #FFFFFF;
+    --cor-dourado: #E8B059;
+    --cor-cobre: #C76E4A;
+    --cor-terracota: #C76E4A;
+    --cor-marrom-escuro: #2B160E;
+    --cor-preto: #000000;
+}
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem var(--cor-branco), 0 0 0 0.25rem var(--cor-dourado);
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+  background-color: var(--cor-branco);
+}
+
+body {
+  margin-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--cor-marrom-escuro);
+  background-color: var(--cor-branco);
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+  height: 60px;
+}
+
+/* Dashboard Styles */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(43, 22, 14, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    background-color: var(--cor-branco);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(43, 22, 14, 0.2);
+}
+
+/* Status Badges */
+.status-livre {
+    background-color: var(--cor-dourado) !important;
+    color: var(--cor-marrom-escuro) !important;
+}
+
+.status-ocupada {
+    background-color: var(--cor-cobre) !important;
+    color: var(--cor-branco) !important;
+}
+
+.status-limpeza {
+    background-color: var(--cor-dourado) !important;
+    color: var(--cor-marrom-escuro) !important;
+}
+
+.status-manutencao {
+    background-color: var(--cor-marrom-escuro) !important;
+    color: var(--cor-branco) !important;
+}
+
+/* Button Primary Override */
+.btn-primary {
+    background-color: var(--cor-cobre);
+    border-color: var(--cor-cobre);
+    color: var(--cor-branco);
+}
+
+.btn-primary:hover {
+    background-color: var(--cor-marrom-escuro);
+    border-color: var(--cor-marrom-escuro);
+}
+
+.btn-secondary {
+    background-color: var(--cor-dourado);
+    border-color: var(--cor-dourado);
+    color: var(--cor-marrom-escuro);
+}
+
+.btn-secondary:hover {
+    background-color: var(--cor-cobre);
+    border-color: var(--cor-cobre);
+    color: var(--cor-branco);
+}
+
+/* Table Styles */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+    color: var(--cor-marrom-escuro) !important;
+}
+
+/* Force dark text for table headers */
+.table thead th {
+    color: var(--cor-marrom-escuro) !important;
+}
+
+.table thead th i {
+    color: var(--cor-marrom-escuro) !important;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: bold;
+    color: var(--cor-branco) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--cor-branco) !important;
+}
+
+.nav-link:hover {
+    color: var(--cor-dourado) !important;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--cor-cobre);
+    box-shadow: 0 0 0 0.2rem rgba(199, 110, 74, 0.25);
+}
+
+/* Text Colors */
+.text-primary {
+    color: var(--cor-cobre) !important;
+}
+
+.text-secondary {
+    color: var(--cor-dourado) !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: var(--cor-cobre) !important;
+}
+
+.bg-secondary {
+    background-color: var(--cor-dourado) !important;
+}
+
+/* Border Colors */
+.border-primary {
+    border-color: var(--cor-cobre) !important;
+}
+
+.border-secondary {
+    border-color: var(--cor-dourado) !important;
+}
+
+.border-success {
+    border-color: var(--cor-dourado) !important;
+}
+
+/* Background Colors Override */
+.bg-success {
+    background-color: var(--cor-dourado) !important;
+    color: var(--cor-marrom-escuro) !important;
+}
+
+.bg-success.text-white {
+    color: var(--cor-marrom-escuro) !important;
+}
+
+/* Text Colors for Success Elements */
+.text-success {
+    color: var(--cor-dourado) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-group .btn {
+        font-size: 0.875rem;
+    }
+}

@@ -1,0 +1,134 @@
+@model PensionatoApp.Controllers.PagamentosController.RelatorioFinanceiroViewModel
+@{
+    ViewData["Title"] = "Relatório Financeiro";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>
+            <i class="fas fa-chart-bar text-primary"></i>
+            Relatório Financeiro
+        </h2>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <form asp-action="Relatorio" method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Data Início</label>
+                <input type="text" name="dataInicio" class="form-control data-input" placeholder="dd/mm/aaaa" value="@Model.DataInicio.ToString("dd/MM/yyyy")" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Data Fim</label>
+                <input type="text" name="dataFim" class="form-control data-input" placeholder="dd/mm/aaaa" value="@Model.DataFim.ToString("dd/MM/yyyy")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                <h5 class="card-title">Total Recebido</h5>
+                <h3 class="text-success">@Model.TotalRecebido.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</h3>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-receipt fa-2x text-info mb-2"></i>
+                <h5 class="card-title">Total de Pagamentos</h5>
+                <h3 class="text-info">@Model.Pagamentos.Count()</h3>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Pagamentos por Forma</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.PagamentosPorForma.Any())
+                {
+                    @foreach (var forma in Model.PagamentosPorForma)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><strong>@forma.Key:</strong></span>
+                            <span>@forma.Value.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">Nenhum pagamento no período</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Pagamentos.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-list"></i> Detalhamento dos Pagamentos</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Hóspede</th>
+                            <th>Suíte</th>
+                            <th>Descrição</th>
+                            <th>Forma Pagamento</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pagamento in Model.Pagamentos.OrderBy(p => p.DataPagamento))
+                        {
+                            <tr>
+                                <td>@pagamento.DataPagamento?.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</td>
+                                <td>@pagamento.Reserva.Hospede.NomeCompleto</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        Suíte @pagamento.Reserva.Suite.Numero
+                                    </span>
+                                </td>
+                                <td>@pagamento.Descricao</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        @pagamento.FormaPagamento
+                                    </span>
+                                </td>
+                                <td><strong>@pagamento.ValorPago?.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i>
+        Nenhum pagamento encontrado no período selecionado.
+    </div>
+}

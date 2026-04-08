@@ -1,0 +1,291 @@
+@model PensionatoApp.Controllers.PublicController.SuitesDisponiveisViewModel
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<div class="container">
+    <!-- Título centralizado do pensionato -->
+    <div class="text-center" style="margin: 2rem 0 3rem 0;">
+        <div class="d-flex justify-content-center align-items-center mb-3">
+            <img src="~/images/logo-pensionato.svg" alt="Logo Pensionato da Penha" height="80" width="80" class="me-3">
+            <div>
+                <h1 style="font-size: 3rem; color: #C76E4A; font-weight: bold; margin-bottom: 0;">Pensionato da Penha</h1>
+            </div>
+        </div>
+        <p style="font-size: 1.2rem; color: #6c757d; margin-bottom: 0;">Acomodações para Estudantes</p>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Index" method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fas fa-calendar"></i> Data de Entrada</label>
+                            <input type="date" name="dataInicio" id="dataInicio" class="form-control" 
+                                   value="@Model.DataInicio.ToString("yyyy-MM-dd")" 
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fas fa-calendar"></i> Data de Saída</label>
+                            <input type="date" name="dataFim" id="dataFim" class="form-control" 
+                                   value="@Model.DataFim.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary d-block w-100">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary d-block w-100">
+                                <i class="fas fa-refresh"></i> Limpar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.SuitesDisponiveis.Any())
+    {
+        <div class="row">
+            @foreach (var suite in Model.SuitesDisponiveis)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card border-primary h-100">
+                        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: var(--cor-cobre);">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-door-open"></i>
+                                Suíte @suite.Numero
+                            </h5>
+                            <span class="badge bg-light text-primary">Disponível</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <strong>Preço Mensal:</strong>
+                                </div>
+                                <div class="col-6">
+                                    <span class="text-primary fw-bold fs-5">@suite.PrecoMensal.ToString("C")</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <strong>Tipo de Cama:</strong>
+                                </div>
+                                <div class="col-6">
+                                    @if ((int)suite.TipoCama == 0)
+                                    {
+                                        <span class="badge text-white" style="background-color: #6f42c1;">@suite.TipoCama</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">@suite.TipoCama</span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <h6><i class="fas fa-check-circle text-success"></i> Comodidades Incluídas:</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="row small">
+                                @if (suite.WiFi)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-wifi text-success"></i> WiFi
+                                    </div>
+                                }
+                                @if (suite.Ventilador)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-fan text-success"></i> Ventilador
+                                    </div>
+                                }
+                                @if (suite.Geladeira)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-snowflake text-success"></i> Geladeira
+                                    </div>
+                                }
+                                @if (suite.MesaEstudos)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-desk text-success"></i> Mesa de Estudos
+                                    </div>
+                                }
+                                @if (suite.ArmarioEmbutido)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-cube text-success"></i> Armário
+                                    </div>
+                                }
+                                @if (suite.QuadrosDecorativos)
+                                {
+                                    <div class="col-6 mb-1">
+                                        <i class="fas fa-image text-success"></i> Decoração
+                                    </div>
+                                }
+                            </div>
+                            
+                            @if (suite.ArCondicionado)
+                            {
+                                <div class="alert alert-info small mt-3 mb-3">
+                                    <i class="fas fa-snowflake"></i>
+                                    <strong>Ar Condicionado:</strong> +@suite.PrecoArCondicionado.ToString("C")/mês
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer">
+                            <a href="@Url.Action("ReservarSuite", new { id = suite.Id, dataEntrada = Model.DataInicio, dataSaida = Model.DataFim })" 
+                               class="btn btn-success w-100">
+                                <i class="fas fa-calendar-plus"></i> Reservar Agora
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h4>Nenhuma suíte disponível</h4>
+                    <p class="mb-0">
+                        Não há suítes livres para o período de 
+                        <strong>@Model.DataInicio.ToString("dd/MM/yyyy")</strong> até 
+                        <strong>@Model.DataFim.ToString("dd/MM/yyyy")</strong>.
+                    </p>
+                    <hr>
+                    <p class="mb-0">
+                        <a href="@Url.Action("Index")" class="btn btn-primary">
+                            <i class="fas fa-calendar"></i> Tentar outro período
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var dataInicio = $('#dataInicio');
+            var dataFim = $('#dataFim');
+            var hoje = new Date().toISOString().split('T')[0];
+
+            // Definir data mínima como hoje
+            dataInicio.attr('min', hoje);
+            
+            // Função para atualizar data mínima de saída
+            function atualizarDataMinimaSaida() {
+                var dataEntrada = dataInicio.val();
+                if (dataEntrada) {
+                    // Data de saída deve ser pelo menos 1 dia após entrada
+                    var dataEntradaObj = new Date(dataEntrada);
+                    dataEntradaObj.setDate(dataEntradaObj.getDate() + 1);
+                    var dataMinima = dataEntradaObj.toISOString().split('T')[0];
+                    dataFim.attr('min', dataMinima);
+                    
+                    // Se data de saída é anterior à nova data mínima, limpar
+                    if (dataFim.val() && dataFim.val() <= dataEntrada) {
+                        dataFim.val('');
+                    }
+                }
+            }
+
+            // Validar quando data de entrada mudar
+            dataInicio.on('change', function() {
+                var dataEntrada = this.value;
+                var hoje = new Date().toISOString().split('T')[0];
+                
+                // Validar se não é anterior a hoje
+                if (dataEntrada < hoje) {
+                    alert('A data de entrada não pode ser anterior ao dia de hoje.');
+                    this.value = '';
+                    return;
+                }
+                
+                atualizarDataMinimaSaida();
+                validarPeriodo();
+            });
+
+            // Validar quando data de saída mudar
+            dataFim.on('change', function() {
+                validarPeriodo();
+            });
+
+            // Função de validação completa
+            function validarPeriodo() {
+                var dataEntrada = dataInicio.val();
+                var dataSaida = dataFim.val();
+                
+                if (!dataEntrada || !dataSaida) {
+                    return true;
+                }
+                
+                var hoje = new Date().toISOString().split('T')[0];
+                
+                // Validar se entrada não é anterior a hoje
+                if (dataEntrada < hoje) {
+                    dataInicio.addClass('is-invalid');
+                    return false;
+                } else {
+                    dataInicio.removeClass('is-invalid');
+                }
+                
+                // Validar se saída é posterior à entrada
+                if (dataSaida <= dataEntrada) {
+                    dataFim.addClass('is-invalid');
+                    return false;
+                } else {
+                    dataFim.removeClass('is-invalid');
+                }
+                
+                return true;
+            }
+
+            // Validação no envio do formulário
+            $('form').on('submit', function(e) {
+                var dataEntrada = dataInicio.val();
+                var dataSaida = dataFim.val();
+                
+                if (!dataEntrada || !dataSaida) {
+                    e.preventDefault();
+                    alert('Por favor, selecione ambas as datas.');
+                    return false;
+                }
+                
+                var hoje = new Date().toISOString().split('T')[0];
+                
+                if (dataEntrada < hoje) {
+                    e.preventDefault();
+                    alert('A data de entrada não pode ser anterior ao dia de hoje.');
+                    return false;
+                }
+                
+                if (dataSaida <= dataEntrada) {
+                    e.preventDefault();
+                    alert('A data de saída deve ser posterior à data de entrada.');
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Inicializar validações
+            atualizarDataMinimaSaida();
+        });
+    </script>
+}

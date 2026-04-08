@@ -1,0 +1,68 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Login - Pensionato da Penha";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-primary shadow" style="border-color: #C76E4A !important;">
+            <div class="card-header text-white text-center" style="background-color: #C76E4A;">
+                <div class="d-flex justify-content-center align-items-center mb-2">
+                    <img src="~/images/logo-pensionato.svg" alt="Logo Pensionato da Penha" height="40" width="40" class="me-2">
+                    <h3 class="mb-0">
+                        <i class="fas fa-lock"></i>
+                        Área Administrativa
+                    </h3>
+                </div>
+                <p class="mb-0"><small>Pensionato da Penha</small></p>
+            </div>
+            <div class="card-body p-4">
+                <form id="account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" placeholder="nome@exemplo.com" />
+                        <label asp-for="Input.Email">Email</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control" placeholder="Senha" />
+                        <label asp-for="Input.Password">Senha</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        <label asp-for="Input.RememberMe" class="form-check-label">
+                            Lembrar-me
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button id="login-submit" type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-light">
+                <small class="text-muted">
+                    <a asp-controller="Public" asp-action="Index" class="text-decoration-none">
+                        <i class="fas fa-arrow-left"></i> Voltar ao site público
+                    </a>
+                </small>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <small class="text-muted">Sistema de Gestão - Pensionato da Penha</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

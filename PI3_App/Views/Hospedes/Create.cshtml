@@ -1,0 +1,130 @@
+@model PensionatoApp.Models.Hospede
+@{
+    ViewData["Title"] = "Novo Hóspede";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>
+            <i class="fas fa-user-plus text-success"></i>
+            Cadastrar Novo Hóspede
+        </h2>
+        <hr />
+        
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label asp-for="NomeCompleto" class="form-label">Nome Completo *</label>
+                        <input asp-for="NomeCompleto" class="form-control" placeholder="Digite o nome completo" />
+                        <span asp-validation-for="NomeCompleto" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="Documento" class="form-label">RG/CPF *</label>
+                        <input asp-for="Documento" class="form-control" placeholder="000.000.000-00" />
+                        <span asp-validation-for="Documento" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="DataNascimento" class="form-label">Data de Nascimento *</label>
+                        <input asp-for="DataNascimento" type="text" class="form-control data-input" placeholder="dd/mm/aaaa" />
+                        <span asp-validation-for="DataNascimento" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="Telefone" class="form-label">Telefone *</label>
+                        <input asp-for="Telefone" class="form-control" placeholder="(11) 99999-9999" />
+                        <span asp-validation-for="Telefone" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">E-mail *</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="email@exemplo.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Endereco" class="form-label">Endereço</label>
+                <input asp-for="Endereco" class="form-control" placeholder="Rua, número, bairro, cidade" />
+                <span asp-validation-for="Endereco" class="text-danger"></span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="ContatoEmergenciaNome" class="form-label">Contato de Emergência - Nome</label>
+                        <input asp-for="ContatoEmergenciaNome" class="form-control" placeholder="Nome do contato" />
+                        <span asp-validation-for="ContatoEmergenciaNome" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="ContatoEmergenciaTelefone" class="form-label">Contato de Emergência - Telefone</label>
+                        <input asp-for="ContatoEmergenciaTelefone" class="form-control" placeholder="(11) 99999-9999" />
+                        <span asp-validation-for="ContatoEmergenciaTelefone" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label asp-for="Observacoes" class="form-label">Observações</label>
+                <textarea asp-for="Observacoes" class="form-control" rows="3" placeholder="Alergias, necessidades especiais, etc."></textarea>
+                <span asp-validation-for="Observacoes" class="text-danger"></span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Salvar Hóspede
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Informações</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Campos obrigatórios:</strong></p>
+                <ul>
+                    <li>Nome Completo</li>
+                    <li>Documento (RG/CPF)</li>
+                    <li>Data de Nascimento</li>
+                    <li>Telefone</li>
+                    <li>E-mail</li>
+                </ul>
+                
+                <hr/>
+                
+                <p><strong>Dicas:</strong></p>
+                <ul>
+                    <li>Verifique se os dados estão corretos antes de salvar</li>
+                    <li>O contato de emergência é recomendado para estudantes</li>
+                    <li>Anote qualquer alergia ou necessidade especial</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
