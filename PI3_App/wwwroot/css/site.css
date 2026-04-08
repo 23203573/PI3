@@ -17,6 +17,7 @@
     color: var(--cor-cobre);
     text-transform: uppercase;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 /* Nome do pensionato em cabeçalhos com fundo colorido */
