@@ -16,8 +16,8 @@
 <div class="row mb-4">
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
-            <div class="card border-primary">
-                <div class="card-body text-center">
+            <div class="card border-primary h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-bed fa-2x text-primary mb-2"></i>
                     <h5 class="card-title">Total de Suítes</h5>
                     <h3 class="text-primary">@Model.TotalSuites</h3>
@@ -28,8 +28,8 @@
     
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
-            <div class="card border-success">
-                <div class="card-body text-center">
+            <div class="card border-success h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
                     <h5 class="card-title">Suítes Ocupadas</h5>
                     <h3 class="text-success">@Model.SuitesOcupadas</h3>
@@ -40,8 +40,8 @@
     
     <div class="col-md-3">
         <a href="@Url.Action("SuitesLivres", "Suites")" class="text-decoration-none">
-            <div class="card border-info">
-                <div class="card-body text-center">
+            <div class="card border-info h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-door-open fa-2x text-info mb-2"></i>
                     <h5 class="card-title">Suítes Livres</h5>
                     <h3 class="text-info">@Model.SuitesLivres</h3>
@@ -52,8 +52,8 @@
     
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Hospedes")" class="text-decoration-none">
-            <div class="card border-warning">
-                <div class="card-body text-center">
+            <div class="card border-warning h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-users fa-2x text-warning mb-2"></i>
                     <h5 class="card-title">Hóspedes Ativos</h5>
                     <h3 class="text-warning">@Model.TotalHospedes</h3>
@@ -66,8 +66,8 @@
 <div class="row mb-4">
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Reservas")" class="text-decoration-none">
-            <div class="card border-secondary">
-                <div class="card-body text-center">
+            <div class="card border-secondary h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-calendar-check fa-2x text-secondary mb-2"></i>
                     <h5 class="card-title">Reservas Ativas</h5>
                     <h3 class="text-secondary">@Model.ReservasAtivas</h3>
@@ -79,10 +79,10 @@
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Pagamentos")" class="text-decoration-none">
             <div class="card border-danger h-100">
-                <div class="card-body text-center d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-money-check-alt fa-2x text-danger mb-2"></i>
                     <h5 class="card-title">Pagamentos</h5>
-                    <h3 class="text-danger mb-3">@Model.PagamentosPendentes</h3>
+                    <h3 class="text-danger">@Model.PagamentosPendentes</h3>
                 </div>
             </div>
         </a>
@@ -90,8 +90,8 @@
     
     <div class="col-md-3">
         <a href="@Url.Action("Relatorio", "Pagamentos")" class="text-decoration-none">
-            <div class="card border-success">
-                <div class="card-body text-center">
+            <div class="card border-success h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
                     <h5 class="card-title">Receita Mensal</h5>
                     <h3 class="text-success">@Model.ReceitaMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</h3>
@@ -102,8 +102,8 @@
     
     <div class="col-md-3">
         <a href="@Url.Action("Index", "Notificacoes")" class="text-decoration-none">
-            <div class="card border-@(Model.NotificacoesPendentes > 0 ? "warning" : "info")">
-                <div class="card-body text-center">
+            <div class="card border-@(Model.NotificacoesPendentes > 0 ? "warning" : "info") h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-bell fa-2x text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info") mb-2"></i>
                     <h5 class="card-title">Notificações</h5>
                     <h3 class="text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info")">@Model.NotificacoesPendentes</h3>
