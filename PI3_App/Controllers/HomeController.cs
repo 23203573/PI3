@@ -21,13 +21,30 @@ namespace PensionatoApp.Controllers
             // Gerar notificações automáticas
             await GerarNotificacoesAutomaticas();
             
+            var hoje = DateTime.Today;
+            
             var dashboard = new DashboardViewModel
             {
                 TotalSuites = await _context.Suites.CountAsync(),
-                SuitesOcupadas = await _context.Suites.CountAsync(s => s.Status == StatusSuite.Ocupada),
+                // Suítes ocupadas no dia atual (baseado em reservas ativas que abranjam hoje)
+                SuitesOcupadas = await _context.Reservas.CountAsync(r => 
+                    r.Status == StatusReserva.Ativa && 
+                    r.DataEntrada <= hoje && 
+                    r.DataSaida > hoje),
                 SuitesLivres = await _context.Suites.CountAsync(s => s.Status == StatusSuite.Livre),
-                TotalHospedes = await _context.Hospedes.CountAsync(h => h.Ativo),
-                ReservasAtivas = await _context.Reservas.CountAsync(r => r.Status == StatusReserva.Ativa),
+                // Hóspedes ativos no dia atual (que têm reserva ativa hoje)
+                TotalHospedes = await _context.Reservas
+                    .Include(r => r.Hospede)
+                    .CountAsync(r => 
+                        r.Status == StatusReserva.Ativa && 
+                        r.DataEntrada <= hoje && 
+                        r.DataSaida > hoje &&
+                        r.Hospede != null && r.Hospede.Ativo),
+                // Reservas ativas no dia atual
+                ReservasAtivas = await _context.Reservas.CountAsync(r => 
+                    r.Status == StatusReserva.Ativa && 
+                    r.DataEntrada <= hoje && 
+                    r.DataSaida > hoje),
                 PagamentosPendentes = await _context.Pagamentos.CountAsync(p => p.Status == StatusPagamento.Pendente),
                 ReceitaMensal = await _context.Pagamentos
                     .Where(p => p.Status == StatusPagamento.Pago && 
