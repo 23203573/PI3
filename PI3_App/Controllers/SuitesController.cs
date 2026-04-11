@@ -19,6 +19,7 @@ namespace PensionatoApp.Controllers
         // GET: Suites
         public async Task<IActionResult> Index()
         {
+            var hoje = DateTime.Today;
             var todasSuites = await _context.Suites
                 .Include(s => s.Reservas.Where(r => r.Status == StatusReserva.Ativa))
                     .ThenInclude(r => r.Hospede)
@@ -26,8 +27,14 @@ namespace PensionatoApp.Controllers
                 .ToListAsync();
             
             ViewBag.TotalSuites = todasSuites.Count();
-            ViewBag.SuitesOcupadas = todasSuites.Count(s => s.Reservas.Any(r => r.Status == StatusReserva.Ativa));
-            ViewBag.SuitesLivres = todasSuites.Count(s => !s.Reservas.Any(r => r.Status == StatusReserva.Ativa));
+            ViewBag.SuitesOcupadas = todasSuites.Count(s => s.Reservas.Any(r => 
+                r.Status == StatusReserva.Ativa && 
+                r.DataEntrada <= hoje && 
+                r.DataSaida > hoje));
+            ViewBag.SuitesLivres = todasSuites.Count(s => !s.Reservas.Any(r => 
+                r.Status == StatusReserva.Ativa && 
+                r.DataEntrada <= hoje && 
+                r.DataSaida > hoje));
             
             return View(todasSuites);
         }
