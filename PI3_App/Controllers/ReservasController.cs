@@ -297,6 +297,66 @@ namespace PensionatoApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Reservas/Delete/5
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var reserva = await _context.Reservas
+                    .Include(r => r.Suite)
+                    .Include(r => r.ReservaHospedes)
+                    .Include(r => r.Pagamentos)
+                    .FirstOrDefaultAsync(r => r.Id == id);
+
+                if (reserva != null)
+                {
+                    // Liberar a suíte se estiver ocupada por esta reserva
+                    if (reserva.Suite != null && reserva.Suite.Status == StatusSuite.Ocupada)
+                    {
+                        reserva.Suite.Status = StatusSuite.Livre;
+                    }
+
+                    // Remover relacionamentos ReservaHospedes
+                    if (reserva.ReservaHospedes.Any())
+                    {
+                        _context.ReservaHospedes.RemoveRange(reserva.ReservaHospedes);
+                    }
+
+                    // Remover pagamentos relacionados
+                    if (reserva.Pagamentos.Any())
+                    {
+                        _context.Pagamentos.RemoveRange(reserva.Pagamentos);
+                    }
+
+                    // Remover notificações relacionadas
+                    var notificacoesRelacionadas = await _context.Notificacoes
+                        .Where(n => n.ReservaId == reserva.Id)
+                        .ToListAsync();
+                    if (notificacoesRelacionadas.Any())
+                    {
+                        _context.Notificacoes.RemoveRange(notificacoesRelacionadas);
+                    }
+
+                    // Remover a reserva
+                    _context.Reservas.Remove(reserva);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Sucesso"] = "Reserva excluída com sucesso!";
+                }
+                else
+                {
+                    TempData["Erro"] = "Reserva não encontrada.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Erro"] = "Erro ao excluir a reserva: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task CriarPagamentosMensais(Reserva reserva)
         {
             var dataVencimento = reserva.DataEntrada.AddMonths(1);
