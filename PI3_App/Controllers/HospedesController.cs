@@ -20,7 +20,6 @@ namespace PensionatoApp.Controllers
         public async Task<IActionResult> Index()
         {
             var hospedes = await _context.Hospedes
-                .Where(h => h.Ativo)
                 .Include(h => h.Reservas.Where(r => r.Status == StatusReserva.Ativa))
                     .ThenInclude(r => r.Suite)
                 .OrderBy(h => h.NomeCompleto)
@@ -119,6 +118,21 @@ namespace PensionatoApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(hospede);
+        }
+
+        // POST: Hospedes/ToggleStatus/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var hospede = await _context.Hospedes.FindAsync(id);
+            if (hospede != null)
+            {
+                hospede.Ativo = !hospede.Ativo;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Hospedes/Delete/5
