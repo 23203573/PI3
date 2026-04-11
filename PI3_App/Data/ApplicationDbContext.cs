@@ -18,6 +18,7 @@ namespace PensionatoApp.Data
         public DbSet<RegistroLimpeza> RegistrosLimpeza { get; set; }
         public DbSet<RegistroManutencao> RegistrosManutencao { get; set; }
         public DbSet<Notificacao> Notificacoes { get; set; }
+        public DbSet<ReceitaMensal> ReceitasMensais { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

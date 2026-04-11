@@ -14,7 +14,7 @@
 </div>
 
 <div class="row mb-3">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="btn-group" role="group">
             <a asp-action="Index" class="btn @(ViewBag.StatusFiltro == null ? "btn-primary" : "btn-outline-primary")">
                 <i class="fas fa-list"></i> Todos
@@ -28,6 +28,20 @@
                 <i class="fas fa-check"></i> Pagos
             </a>
         </div>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group" role="group">
+            <a asp-action="CadastrarManual" class="btn btn-success">
+                <i class="fas fa-plus"></i> Cadastrar Manual
+            </a>
+            <a asp-action="Pendentes" class="btn btn-warning">
+                <i class="fas fa-exclamation-triangle"></i> Inadimplentes
+            </a>
+            <a asp-action="ReceitaMensal" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> Receita Mensal
+            </a>
+        </div>
+    </div>
     </div>
     <div class="col-md-6 text-end">
         <a asp-action="Relatorio" class="btn btn-info">

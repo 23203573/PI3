@@ -49,6 +49,15 @@ namespace PensionatoApp.Models
         
         public DateTime DataCriacao { get; set; } = DateTime.Now;
         
+        // Campos para controle de inadimplência
+        public bool IsInadimplente { get; set; } = false;
+        
+        public int DiasAtraso { get; set; } = 0;
+        
+        public DateTime? UltimaNotificacaoEnviada { get; set; }
+        
+        public int QuantidadeNotificacoes { get; set; } = 0;
+        
         // Relacionamentos
         public virtual Reserva Reserva { get; set; } = null!;
     }

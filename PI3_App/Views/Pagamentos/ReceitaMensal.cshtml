@@ -1,0 +1,239 @@
+@model PensionatoApp.Controllers.PagamentosController.ReceitaMensalViewModel
+@{
+    ViewData["Title"] = "Receita Mensal";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-chart-bar text-success"></i>
+        Receita Mensal
+    </h1>
+    <div>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Filtros de Mês/Ano -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter"></i>
+            Selecionar Período
+        </h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="ReceitaMensal" method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="mes" class="form-label">Mês</label>
+                <select class="form-select" id="mes" name="mes">
+                    @foreach (var mes in Model.Meses)
+                    {
+                        <option value="@mes.Numero" selected="@(mes.Numero == Model.MesSelecionado)">
+                            @mes.Nome
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="ano" class="form-label">Ano</label>
+                <select class="form-select" id="ano" name="ano">
+                    @foreach (var ano in Model.Anos)
+                    {
+                        <option value="@ano" selected="@(ano == Model.AnoSelecionado)">@ano</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block w-100">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resumo da Receita -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h5 class="card-title text-success">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Receita Total
+                </h5>
+                <h3 class="text-success">@Model.ReceitaAtual.ReceitaTotal.ToString("C")</h3>
+                <small class="text-muted">@Model.ReceitaAtual.QuantidadePagamentos pagamentos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-check-circle"></i>
+                    Receita Recebida
+                </h5>
+                <h3 class="text-primary">@Model.ReceitaAtual.ReceitaRecebida.ToString("C")</h3>
+                <small class="text-muted">@Model.ReceitaAtual.QuantidadePagamentosRecebidos recebidos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h5 class="card-title text-warning">
+                    <i class="fas fa-clock"></i>
+                    Receita Pendente
+                </h5>
+                <h3 class="text-warning">@Model.ReceitaAtual.ReceitaPendente.ToString("C")</h3>
+                <small class="text-muted">@Model.ReceitaAtual.QuantidadePagamentosPendentes pendentes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <h5 class="card-title text-info">
+                    <i class="fas fa-percentage"></i>
+                    Taxa de Recebimento
+                </h5>
+                @{
+                    var taxaRecebimento = Model.ReceitaAtual.ReceitaTotal > 0 ? 
+                        (Model.ReceitaAtual.ReceitaRecebida / Model.ReceitaAtual.ReceitaTotal * 100) : 0;
+                }
+                <h3 class="text-info">@taxaRecebimento.ToString("F1")%</h3>
+                <small class="text-muted">do total esperado</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Progresso -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line"></i>
+            Progresso do Mês: @Model.ReceitaAtual.NomeMes/@Model.ReceitaAtual.Ano
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Receita Recebida</span>
+                <span>@Model.ReceitaAtual.ReceitaRecebida.ToString("C") de @Model.ReceitaAtual.ReceitaTotal.ToString("C")</span>
+            </div>
+            <div class="progress" style="height: 20px;">
+                @{
+                    var progressoRecebido = Model.ReceitaAtual.ReceitaTotal > 0 ? 
+                        (Model.ReceitaAtual.ReceitaRecebida / Model.ReceitaAtual.ReceitaTotal * 100) : 0;
+                }
+                <div class="progress-bar bg-success" style="width: @progressoRecebido.ToString("F1")%">
+                    @progressoRecebido.ToString("F1")%
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Pagamentos Processados</span>
+                <span>@Model.ReceitaAtual.QuantidadePagamentosRecebidos de @Model.ReceitaAtual.QuantidadePagamentos</span>
+            </div>
+            <div class="progress" style="height: 20px;">
+                @{
+                    var progressoPagamentos = Model.ReceitaAtual.QuantidadePagamentos > 0 ? 
+                        ((double)Model.ReceitaAtual.QuantidadePagamentosRecebidos / Model.ReceitaAtual.QuantidadePagamentos * 100) : 0;
+                }
+                <div class="progress-bar bg-primary" style="width: @progressoPagamentos.ToString("F1")%">
+                    @progressoPagamentos.ToString("F1")%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detalhes Adicionais -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Detalhes do Período
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Período:</strong></td>
+                        <td>@Model.ReceitaAtual.NomeMes/@Model.ReceitaAtual.Ano</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Última Atualização:</strong></td>
+                        <td>@Model.ReceitaAtual.DataCalculo.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total de Pagamentos:</strong></td>
+                        <td>@Model.ReceitaAtual.QuantidadePagamentos</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Pagamentos Recebidos:</strong></td>
+                        <td class="text-success">@Model.ReceitaAtual.QuantidadePagamentosRecebidos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pagamentos Pendentes:</strong></td>
+                        <td class="text-warning">@Model.ReceitaAtual.QuantidadePagamentosPendentes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ticket Médio:</strong></td>
+                        <td>
+                            @{
+                                var ticketMedio = Model.ReceitaAtual.QuantidadePagamentos > 0 ? 
+                                    (Model.ReceitaAtual.ReceitaTotal / Model.ReceitaAtual.QuantidadePagamentos) : 0;
+                            }
+                            @ticketMedio.ToString("C")
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-bolt"></i>
+            Ações Rápidas
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <a asp-action="Pendentes" class="btn btn-warning btn-lg w-100">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Ver Pagamentos Pendentes
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-action="Index" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-list"></i>
+                    Todos os Pagamentos
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-action="Relatorio" class="btn btn-info btn-lg w-100">
+                    <i class="fas fa-file-alt"></i>
+                    Relatório Detalhado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

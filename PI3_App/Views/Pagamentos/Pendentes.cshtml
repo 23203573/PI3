@@ -1,0 +1,251 @@
+@model List<PensionatoApp.Models.Pagamento>
+@{
+    ViewData["Title"] = "Pagamentos Pendentes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-exclamation-triangle text-warning"></i>
+        Pagamentos Pendentes
+    </h1>
+    <div>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (Model.Any())
+{
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i>
+                Pagamentos em Atraso ou Pendentes (@Model.Count)
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Hóspede</th>
+                            <th>Suíte</th>
+                            <th>Vencimento</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Dias Atraso</th>
+                            <th>Notificações</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pagamento in Model)
+                        {
+                            <tr class="@(pagamento.DiasAtraso > 30 ? "table-danger" : (pagamento.DiasAtraso > 0 ? "table-warning" : ""))">
+                                <td>
+                                    <strong>@pagamento.Reserva?.Hospede?.NomeCompleto</strong>
+                                    <br />
+                                    <small class="text-muted">@pagamento.Reserva?.Hospede?.Email</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        Suíte @pagamento.Reserva?.Suite?.Numero
+                                    </span>
+                                </td>
+                                <td>
+                                    @pagamento.DataVencimento.ToString("dd/MM/yyyy")
+                                    <br />
+                                    <small class="text-muted">@pagamento.Descricao</small>
+                                </td>
+                                <td>
+                                    <strong class="text-primary">@pagamento.Valor.ToString("C")</strong>
+                                </td>
+                                <td>
+                                    @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Atrasado)
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-exclamation-circle"></i> Atrasado
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock"></i> Pendente
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (pagamento.DiasAtraso > 0)
+                                    {
+                                        <span class="badge bg-danger">
+                                            @pagamento.DiasAtraso dias
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        @pagamento.QuantidadeNotificacoes
+                                    </span>
+                                    @if (pagamento.UltimaNotificacaoEnviada.HasValue)
+                                    {
+                                        <br />
+                                        <small class="text-muted">
+                                            Última: @pagamento.UltimaNotificacaoEnviada.Value.ToString("dd/MM/yyyy")
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#regularizarModal" 
+                                            data-id="@pagamento.Id" 
+                                            data-valor="@pagamento.Valor" 
+                                            data-hospede="@pagamento.Reserva?.Hospede?.NomeCompleto"
+                                            data-suite="@pagamento.Reserva?.Suite?.Numero">
+                                        <i class="fas fa-check"></i> Regularizar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Críticos (>30 dias)
+                    </h5>
+                    <h3 class="text-danger">@Model.Count(p => p.DiasAtraso > 30)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-warning">
+                        <i class="fas fa-clock"></i>
+                        Em Atraso
+                    </h5>
+                    <h3 class="text-warning">@Model.Count(p => p.DiasAtraso > 0)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Valor Total
+                    </h5>
+                    <h3 class="text-info">@Model.Sum(p => p.Valor).ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">
+            <i class="fas fa-check-circle"></i>
+            Excelente!
+        </h4>
+        <p>Não há pagamentos pendentes no momento. Todos os pagamentos estão em dia!</p>
+    </div>
+}
+
+<!-- Modal para Regularizar Pagamento -->
+<div class="modal fade" id="regularizarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Regularizar" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check"></i>
+                        Regularizar Pagamento
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="regularizarId" name="id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Hóspede:</strong></label>
+                        <p id="regularizarHospede" class="form-control-plaintext"></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Suíte:</strong></label>
+                        <p id="regularizarSuite" class="form-control-plaintext"></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="valorPago" class="form-label">Valor Pago *</label>
+                        <input type="number" class="form-control" id="valorPago" name="valorPago" step="0.01" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="formaPagamento" class="form-label">Forma de Pagamento *</label>
+                        <select class="form-select" id="formaPagamento" name="formaPagamento" required>
+                            <option value="">Selecione...</option>
+                            <option value="0">Dinheiro</option>
+                            <option value="1">PIX</option>
+                            <option value="2">Cheque</option>
+                            <option value="3">Transferência Bancária</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Confirmar Regularização
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Script para popular modal de regularização
+        document.addEventListener('DOMContentLoaded', function() {
+            var regularizarModal = document.getElementById('regularizarModal');
+            if (regularizarModal) {
+                regularizarModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var id = button.getAttribute('data-id');
+                    var valor = button.getAttribute('data-valor');
+                    var hospede = button.getAttribute('data-hospede');
+                    var suite = button.getAttribute('data-suite');
+                    
+                    document.getElementById('regularizarId').value = id;
+                    document.getElementById('valorPago').value = valor;
+                    document.getElementById('regularizarHospede').textContent = hospede;
+                    document.getElementById('regularizarSuite').textContent = 'Suíte ' + suite;
+                });
+            }
+        });
+    </script>
+}

@@ -47,6 +47,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 // Adicionar serviços
 builder.Services.AddScoped<ContratoService>();
+builder.Services.AddScoped<PagamentoService>();
 
 // Adicionar serviços MVC
 builder.Services.AddControllersWithViews();

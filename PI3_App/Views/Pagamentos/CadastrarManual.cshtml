@@ -1,0 +1,145 @@
+@model PensionatoApp.Controllers.PagamentosController.PagamentoManualViewModel
+@{
+    ViewData["Title"] = "Cadastrar Pagamento Pendente";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-plus-circle text-primary"></i>
+        Cadastrar Pagamento Pendente
+    </h1>
+    <div>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-invoice"></i>
+                    Informações do Pagamento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="CadastrarManual" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="ReservaId" class="form-label">
+                                    <i class="fas fa-bed"></i>
+                                    @Html.DisplayNameFor(model => model.ReservaId)
+                                </label>
+                                <select asp-for="ReservaId" class="form-select" asp-items="@(new SelectList(ViewBag.Reservas, "Value", "Text"))">
+                                    <option value="">Selecione uma reserva...</option>
+                                </select>
+                                <span asp-validation-for="ReservaId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Valor" class="form-label">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    @Html.DisplayNameFor(model => model.Valor)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input asp-for="Valor" class="form-control" placeholder="0,00" />
+                                </div>
+                                <span asp-validation-for="Valor" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="DataVencimento" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    @Html.DisplayNameFor(model => model.DataVencimento)
+                                </label>
+                                <input asp-for="DataVencimento" class="form-control" type="date" />
+                                <span asp-validation-for="DataVencimento" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Descricao" class="form-label">
+                                    <i class="fas fa-tag"></i>
+                                    @Html.DisplayNameFor(model => model.Descricao)
+                                </label>
+                                <input asp-for="Descricao" class="form-control" placeholder="Ex: Aluguel Maio 2026" />
+                                <span asp-validation-for="Descricao" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Observacoes" class="form-label">
+                            <i class="fas fa-comment"></i>
+                            @Html.DisplayNameFor(model => model.Observacoes)
+                        </label>
+                        <textarea asp-for="Observacoes" class="form-control" rows="3" 
+                                  placeholder="Informações adicionais sobre este pagamento..."></textarea>
+                        <span asp-validation-for="Observacoes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Cadastrar Pagamento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações Adicionais -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="alert alert-info">
+            <h5 class="alert-heading">
+                <i class="fas fa-info-circle"></i> 
+                Informações Importantes
+            </h5>
+            <ul class="mb-0">
+                <li>O pagamento será criado com status <strong>Pendente</strong></li>
+                <li>Se a data de vencimento for anterior à data atual, será automaticamente marcado como <strong>Atrasado</strong></li>
+                <li>Notificações automáticas serão enviadas mensalmente para pagamentos em atraso</li>
+                <li>Você pode regularizar este pagamento posteriormente através da área de <strong>Pagamentos Pendentes</strong></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Formatação de moeda para o campo valor
+            $('#Valor').mask('#.##0,00', {reverse: true});
+            
+            // Definir data mínima para hoje
+            var today = new Date().toISOString().split('T')[0];
+            $('#DataVencimento').attr('min', today);
+            
+            // Se não tiver data definida, sugerir o próximo mês
+            if (!$('#DataVencimento').val()) {
+                var nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                $('#DataVencimento').val(nextMonth.toISOString().split('T')[0]);
+            }
+        });
+    </script>
+}
