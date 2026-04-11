@@ -60,8 +60,40 @@ namespace PensionatoApp.Controllers
         // POST: Hospedes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NomeCompleto,Documento,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes")] Hospede hospede)
+        public async Task<IActionResult> Create([Bind("NomeCompleto,EhBrasileiro,RG,CPF,TipoDocumentoEstrangeiro,NumeroDocumentoEstrangeiro,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes")] Hospede hospede)
         {
+            // Validação customizada baseada na nacionalidade
+            if (hospede.EhBrasileiro)
+            {
+                if (string.IsNullOrWhiteSpace(hospede.RG))
+                {
+                    ModelState.AddModelError("RG", "RG é obrigatório para brasileiros.");
+                }
+                if (string.IsNullOrWhiteSpace(hospede.CPF))
+                {
+                    ModelState.AddModelError("CPF", "CPF é obrigatório para brasileiros.");
+                }
+                
+                // Limpar campos de estrangeiro se for brasileiro
+                hospede.TipoDocumentoEstrangeiro = null;
+                hospede.NumeroDocumentoEstrangeiro = null;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(hospede.TipoDocumentoEstrangeiro))
+                {
+                    ModelState.AddModelError("TipoDocumentoEstrangeiro", "Tipo do documento é obrigatório para estrangeiros.");
+                }
+                if (string.IsNullOrWhiteSpace(hospede.NumeroDocumentoEstrangeiro))
+                {
+                    ModelState.AddModelError("NumeroDocumentoEstrangeiro", "Número do documento é obrigatório para estrangeiros.");
+                }
+                
+                // Limpar campos brasileiros se for estrangeiro
+                hospede.RG = null;
+                hospede.CPF = null;
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(hospede);
@@ -90,11 +122,43 @@ namespace PensionatoApp.Controllers
         // POST: Hospedes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,Documento,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes,DataCadastro,Ativo")] Hospede hospede)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,EhBrasileiro,RG,CPF,TipoDocumentoEstrangeiro,NumeroDocumentoEstrangeiro,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes,DataCadastro,Ativo")] Hospede hospede)
         {
             if (id != hospede.Id)
             {
                 return NotFound();
+            }
+
+            // Validação customizada baseada na nacionalidade
+            if (hospede.EhBrasileiro)
+            {
+                if (string.IsNullOrWhiteSpace(hospede.RG))
+                {
+                    ModelState.AddModelError("RG", "RG é obrigatório para brasileiros.");
+                }
+                if (string.IsNullOrWhiteSpace(hospede.CPF))
+                {
+                    ModelState.AddModelError("CPF", "CPF é obrigatório para brasileiros.");
+                }
+                
+                // Limpar campos de estrangeiro se for brasileiro
+                hospede.TipoDocumentoEstrangeiro = null;
+                hospede.NumeroDocumentoEstrangeiro = null;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(hospede.TipoDocumentoEstrangeiro))
+                {
+                    ModelState.AddModelError("TipoDocumentoEstrangeiro", "Tipo do documento é obrigatório para estrangeiros.");
+                }
+                if (string.IsNullOrWhiteSpace(hospede.NumeroDocumentoEstrangeiro))
+                {
+                    ModelState.AddModelError("NumeroDocumentoEstrangeiro", "Número do documento é obrigatório para estrangeiros.");
+                }
+                
+                // Limpar campos brasileiros se for estrangeiro
+                hospede.RG = null;
+                hospede.CPF = null;
             }
 
             if (ModelState.IsValid)

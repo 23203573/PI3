@@ -41,7 +41,24 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4"><strong>Documento:</strong></div>
-                        <div class="col-sm-8">@Model.Documento</div>
+                        <div class="col-sm-8">
+                            @if(Model.EhBrasileiro)
+                            {
+                                if (!string.IsNullOrEmpty(Model.CPF))
+                                {
+                                    <text>CPF: @Model.CPF</text>
+                                }
+                                if (!string.IsNullOrEmpty(Model.RG))
+                                {
+                                    if (!string.IsNullOrEmpty(Model.CPF)) { <br /> }
+                                    <text>RG: @Model.RG</text>
+                                }
+                            }
+                            else
+                            {
+                                <text>@Model.TipoDocumentoEstrangeiro: @Model.NumeroDocumentoEstrangeiro</text>
+                            }
+                        </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4"><strong>Data Nascimento:</strong></div>

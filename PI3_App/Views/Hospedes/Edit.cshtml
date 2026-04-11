@@ -45,12 +45,57 @@
                             <span asp-validation-for="NomeCompleto" class="text-danger"></span>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Documento" class="form-label">Documento (CPF/RG)</label>
-                                <input asp-for="Documento" class="form-control" placeholder="000.000.000-00">
-                                <span asp-validation-for="Documento" class="text-danger"></span>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="EhBrasileiro" class="form-check-input" type="checkbox" id="ehBrasileiroEdit" checked>
+                                <label class="form-check-label" for="ehBrasileiroEdit">
+                                    Sou brasileiro
+                                </label>
                             </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="naoSouBrasileiroEdit">
+                                <label class="form-check-label" for="naoSouBrasileiroEdit">
+                                    Não sou brasileiro
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Documentos brasileiros -->
+                        <div class="row" id="documentosBrasileirosEdit">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RG" class="form-label">RG</label>
+                                <input asp-for="RG" class="form-control" placeholder="00.000.000-0">
+                                <span asp-validation-for="RG" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CPF" class="form-label">CPF</label>
+                                <input asp-for="CPF" class="form-control" placeholder="000.000.000-00">
+                                <span asp-validation-for="CPF" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Documentos estrangeiros -->
+                        <div class="row" id="documentosEstrangeirosEdit" style="display: none;">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TipoDocumentoEstrangeiro" class="form-label">Tipo do Documento</label>
+                                <select asp-for="TipoDocumentoEstrangeiro" class="form-control">
+                                    <option value="">Selecione...</option>
+                                    <option value="Passaporte">Passaporte</option>
+                                    <option value="Carteira de Identidade">Carteira de Identidade</option>
+                                    <option value="RNE">RNE (Registro Nacional de Estrangeiro)</option>
+                                    <option value="Carteira de Motorista">Carteira de Motorista</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                                <span asp-validation-for="TipoDocumentoEstrangeiro" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NumeroDocumentoEstrangeiro" class="form-label">Número do Documento</label>
+                                <input asp-for="NumeroDocumentoEstrangeiro" class="form-control" placeholder="Número do documento">
+                                <span asp-validation-for="NumeroDocumentoEstrangeiro" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="DataNascimento" class="form-label">Data de Nascimento</label>
                                 <input asp-for="DataNascimento" type="date" class="form-control">
@@ -158,6 +203,35 @@
     
     <script>
         $(document).ready(function() {
+            // Inicializar estado baseado no valor atual
+            var ehBrasileiro = $('#EhBrasileiro').is(':checked');
+            if (!ehBrasileiro) {
+                $('#naoSouBrasileiroEdit').prop('checked', true);
+                $('#documentosBrasileirosEdit').hide();
+                $('#documentosEstrangeirosEdit').show();
+            }
+            
+            // Controle dos checkboxes de nacionalidade
+            $('#ehBrasileiroEdit').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#naoSouBrasileiroEdit').prop('checked', false);
+                    $('#documentosBrasileirosEdit').show();
+                    $('#documentosEstrangeirosEdit').hide();
+                    $('#EhBrasileiro').val(true);
+                }
+            });
+            
+            $('#naoSouBrasileiroEdit').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#ehBrasileiroEdit').prop('checked', false);
+                    $('#documentosBrasileirosEdit').hide();
+                    $('#documentosEstrangeirosEdit').show();
+                    $('#EhBrasileiro').val(false);
+                } else {
+                    $('#ehBrasileiroEdit').prop('checked', true).trigger('change');
+                }
+            });
+            
             // Formatação de telefone
             $('input[name="Telefone"], input[name="ContatoEmergenciaTelefone"]').on('input', function() {
                 var value = this.value.replace(/\D/g, '');
@@ -174,7 +248,7 @@
             });
 
             // Formatação de CPF
-            $('input[name="Documento"]').on('input', function() {
+            $('input[name="CPF"]').on('input', function() {
                 var value = this.value.replace(/\D/g, '');
                 if (value.length <= 11) {
                     // Formato CPF: XXX.XXX.XXX-XX

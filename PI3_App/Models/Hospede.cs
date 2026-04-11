@@ -11,9 +11,22 @@ namespace PensionatoApp.Models
         [StringLength(100)]
         public string NomeCompleto { get; set; } = string.Empty;
         
-        [Required]
+        // Documentação brasileira
         [StringLength(20)]
-        public string Documento { get; set; } = string.Empty; // RG/CPF
+        public string? RG { get; set; }
+        
+        [StringLength(14)]
+        public string? CPF { get; set; }
+        
+        // Campo para indicar se é brasileiro
+        public bool EhBrasileiro { get; set; } = true;
+        
+        // Documentação estrangeira
+        [StringLength(50)]
+        public string? TipoDocumentoEstrangeiro { get; set; }
+        
+        [StringLength(50)]
+        public string? NumeroDocumentoEstrangeiro { get; set; }
         
         [Required]
         public DateTime DataNascimento { get; set; }

@@ -43,7 +43,16 @@
                         <td>
                             <strong>@hospede.NomeCompleto</strong>
                         </td>
-                        <td>@hospede.Documento</td>
+                        <td>
+                            @if(hospede.EhBrasileiro)
+                            {
+                                @(!string.IsNullOrEmpty(hospede.CPF) ? hospede.CPF : hospede.RG)
+                            }
+                            else
+                            {
+                                @hospede.NumeroDocumentoEstrangeiro
+                            }
+                        </td>
                         <td>
                             <i class="fas fa-phone"></i>
                             @hospede.Telefone

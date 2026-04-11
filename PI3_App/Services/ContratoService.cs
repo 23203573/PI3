@@ -44,7 +44,7 @@ namespace PensionatoApp.Services
         
         <p><strong>LOCATÁRIO:</strong><br>
         Nome: {reserva.Hospede.NomeCompleto}<br>
-        Documento: {reserva.Hospede.Documento}<br>
+        Documento: {(reserva.Hospede.EhBrasileiro ? (!string.IsNullOrEmpty(reserva.Hospede.CPF) ? reserva.Hospede.CPF : reserva.Hospede.RG) : reserva.Hospede.NumeroDocumentoEstrangeiro)}<br>
         Telefone: {reserva.Hospede.Telefone}<br>
         E-mail: {reserva.Hospede.Email}<br>
         Endereço: {reserva.Hospede.Endereco}</p>

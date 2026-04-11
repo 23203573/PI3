@@ -63,7 +63,16 @@
                                 <li><strong>Nome:</strong> @Model.Hospede?.NomeCompleto</li>
                                 <li><strong>E-mail:</strong> @Model.Hospede?.Email</li>
                                 <li><strong>Telefone:</strong> @Model.Hospede?.Telefone</li>
-                                <li><strong>Documento:</strong> @Model.Hospede?.Documento</li>
+                                <li><strong>Documento:</strong> 
+                                    @if(Model.Hospede?.EhBrasileiro == true)
+                                    {
+                                        @(!string.IsNullOrEmpty(Model.Hospede.CPF) ? Model.Hospede.CPF : Model.Hospede.RG)
+                                    }
+                                    else
+                                    {
+                                        @Model.Hospede?.NumeroDocumentoEstrangeiro
+                                    }
+                                </li>
                             </ul>
                         </div>
                     </div>

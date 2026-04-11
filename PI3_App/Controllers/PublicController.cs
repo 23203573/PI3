@@ -172,7 +172,7 @@ namespace PensionatoApp.Controllers
                 NomeCompleto = form.NomeCompleto,
                 Email = form.Email,
                 Telefone = form.Telefone,
-                Documento = form.Documento,
+                Documento = form.Documento, // Mantém para compatibilidade com a view
                 DataNascimento = form.DataNascimento,
                 Endereco = form.Endereco,
                 ContatoEmergenciaNome = form.ContatoEmergenciaNome,
@@ -218,7 +218,9 @@ namespace PensionatoApp.Controllers
 
                 // Criar ou encontrar hóspede
                 var hospede = await _context.Hospedes
-                    .FirstOrDefaultAsync(h => h.Email == model.Email || h.Documento == model.Documento);
+                    .FirstOrDefaultAsync(h => h.Email == model.Email || 
+                        h.CPF == model.Documento || h.RG == model.Documento || 
+                        h.NumeroDocumentoEstrangeiro == model.Documento);
 
                 if (hospede == null)
                 {
@@ -227,7 +229,9 @@ namespace PensionatoApp.Controllers
                         NomeCompleto = model.NomeCompleto,
                         Email = model.Email,
                         Telefone = model.Telefone,
-                        Documento = model.Documento,
+                        // Assumindo que reservas públicas são de brasileiros por padrão
+                        EhBrasileiro = true,
+                        CPF = model.Documento, // Por padrão, considera como CPF
                         DataNascimento = model.DataNascimento,
                         Endereco = model.Endereco,
                         ContatoEmergenciaNome = model.ContatoEmergenciaNome,
