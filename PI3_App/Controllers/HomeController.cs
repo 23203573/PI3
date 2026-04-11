@@ -27,17 +27,14 @@ namespace PensionatoApp.Controllers
                 r.Status == StatusReserva.Ativa && 
                 r.DataEntrada <= hoje && 
                 r.DataSaida > hoje);
-            var suitesIndisponiveis = await _context.Suites.CountAsync(s => 
-                s.Status == StatusSuite.EmManutencao || 
-                s.Status == StatusSuite.EmLimpeza);
             
             var dashboard = new DashboardViewModel
             {
                 TotalSuites = totalSuites,
                 // Suítes ocupadas no dia atual (baseado em reservas ativas que abranjam hoje)
                 SuitesOcupadas = suitesOcupadasHoje,
-                // Suítes livres no momento atual (total - ocupadas - em manutenção - em limpeza)
-                SuitesLivres = totalSuites - suitesOcupadasHoje - suitesIndisponiveis,
+                // Suítes livres = total - ocupadas (independente do status da suíte)
+                SuitesLivres = totalSuites - suitesOcupadasHoje,
                 // Hóspedes ativos no dia atual (que têm reserva ativa hoje)
                 TotalHospedes = await _context.Reservas
                     .Include(r => r.Hospede)
@@ -52,15 +49,27 @@ namespace PensionatoApp.Controllers
                     r.DataEntrada <= hoje && 
                     r.DataSaida > hoje),
                 PagamentosPendentes = await _context.Pagamentos.CountAsync(p => p.Status == StatusPagamento.Pendente),
-                // Receita mensal baseada no valor total das reservas realizadas no mês atual
-                ReceitaMensal = await _context.Reservas
-                    .Where(r => r.DataEntrada.Month == DateTime.Now.Month &&
-                               r.DataEntrada.Year == DateTime.Now.Year &&
-                               r.Status == StatusReserva.Ativa)
-                    .SumAsync(r => r.ValorMensalTotal),
+                // Receita mensal: primeiro tenta pagamentos efetivados, senão usa valor das reservas
+                ReceitaMensal = await _context.Pagamentos
+                    .Include(p => p.Reserva)
+                    .Where(p => p.Status == StatusPagamento.Pago && 
+                               p.Reserva != null &&
+                               p.Reserva.DataEntrada.Month == DateTime.Now.Month &&
+                               p.Reserva.DataEntrada.Year == DateTime.Now.Year)
+                    .SumAsync(p => p.ValorPago ?? 0),
                 NotificacoesPendentes = await _context.Notificacoes.CountAsync(n => !n.Lida),
                 DataSelecionada = DateTime.Today
             };
+
+            // Se não há receita de pagamentos, calcular baseado no valor das reservas do mês
+            if (dashboard.ReceitaMensal == 0)
+            {
+                dashboard.ReceitaMensal = await _context.Reservas
+                    .Where(r => r.DataEntrada.Month == DateTime.Now.Month &&
+                               r.DataEntrada.Year == DateTime.Now.Year &&
+                               r.Status == StatusReserva.Ativa)
+                    .SumAsync(r => r.ValorMensalTotal);
+            }
 
             // Calcular ocupação para hoje
             var ocupacaoHoje = await CalcularOcupacaoPorData(DateTime.Today);
