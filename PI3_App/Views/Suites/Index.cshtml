@@ -12,8 +12,16 @@
             <span class="badge bg-primary ms-2">@ViewBag.TotalSuites suítes</span>
         </h2>
         <p class="text-muted mb-0">
-            <span class="badge bg-secondary me-2">@ViewBag.SuitesLivres livres</span>
-            <span class="badge bg-warning">@ViewBag.SuitesOcupadas ocupadas</span>
+            <span class="badge bg-success me-2">@ViewBag.SuitesLivres livres</span>
+            <span class="badge bg-warning me-2">@ViewBag.SuitesOcupadas ocupadas</span>
+            @if (ViewBag.SuitesManutencao > 0)
+            {
+                <span class="badge bg-danger me-2">@ViewBag.SuitesManutencao em manutenção</span>
+            }
+            @if (ViewBag.SuitesLimpeza > 0)
+            {
+                <span class="badge bg-info me-2">@ViewBag.SuitesLimpeza em limpeza</span>
+            }
         </p>
     </div>
     <div>

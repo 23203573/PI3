@@ -1,0 +1,260 @@
+@model PensionatoApp.Models.Suite
+
+@{
+    ViewData["Title"] = "Detalhes da Suíte";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-bed me-2"></i>
+                        Suíte @Model.Numero
+                    </h2>
+                    <p class="text-muted mb-0">Detalhes completos da suíte</p>
+                </div>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações Básicas -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informações Básicas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Número:</strong>
+                            <p class="text-muted">@Model.Numero</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>Tipo de Cama:</strong>
+                            <p class="text-muted">@Model.TipoCama</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Preço Mensal:</strong>
+                            <p class="text-muted fw-bold">@Model.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>Status Atual:</strong>
+                            <div>
+                                @switch (Model.Status)
+                                {
+                                    case PensionatoApp.Models.StatusSuite.Livre:
+                                        <span class="badge bg-success fs-6">Livre</span>
+                                        break;
+                                    case PensionatoApp.Models.StatusSuite.Ocupada:
+                                        <span class="badge bg-warning fs-6">Ocupada</span>
+                                        break;
+                                    case PensionatoApp.Models.StatusSuite.EmManutencao:
+                                        <span class="badge bg-danger fs-6">Em Manutenção</span>
+                                        break;
+                                    case PensionatoApp.Models.StatusSuite.EmLimpeza:
+                                        <span class="badge bg-info fs-6">Em Limpeza</span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Observacoes))
+                    {
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <strong>Observações:</strong>
+                                <p class="text-muted">@Model.Observacoes</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles de Status -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Controles de Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <div>
+                            <h6 class="text-muted mb-2">Controle de Limpeza</h6>
+                            @using (Html.BeginForm("ToggleLimpeza", "Suites", new { id = Model.Id }, FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-@(Model.Status == PensionatoApp.Models.StatusSuite.EmLimpeza ? "success" : "info") w-100">
+                                    <i class="fas fa-@(Model.Status == PensionatoApp.Models.StatusSuite.EmLimpeza ? "check" : "broom") me-2"></i>
+                                    @(Model.Status == PensionatoApp.Models.StatusSuite.EmLimpeza ? "Finalizar Limpeza" : "Iniciar Limpeza")
+                                </button>
+                            }
+                        </div>
+
+                        <div>
+                            <h6 class="text-muted mb-2">Controle de Manutenção</h6>
+                            @using (Html.BeginForm("ToggleManutencao", "Suites", new { id = Model.Id }, FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-@(Model.Status == PensionatoApp.Models.StatusSuite.EmManutencao ? "success" : "danger") w-100">
+                                    <i class="fas fa-@(Model.Status == PensionatoApp.Models.StatusSuite.EmManutencao ? "check" : "wrench") me-2"></i>
+                                    @(Model.Status == PensionatoApp.Models.StatusSuite.EmManutencao ? "Finalizar Manutenção" : "Iniciar Manutenção")
+                                </button>
+                            }
+                        </div>
+
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> Ativar limpeza ou manutenção mudará automaticamente o status da suíte.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comodidades -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Comodidades Disponíveis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-snowflake text-@(Model.ArCondicionado ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.ArCondicionado ? "" : "text-muted")">
+                                    Ar Condicionado
+                                    @if (Model.ArCondicionado && Model.PrecoArCondicionado > 0)
+                                    {
+                                        <small class="text-muted d-block">+ @Model.PrecoArCondicionado.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</small>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-fan text-@(Model.Ventilador ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.Ventilador ? "" : "text-muted")">Ventilador</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-wifi text-@(Model.WiFi ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.WiFi ? "" : "text-muted")">WiFi</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-temperature-low text-@(Model.Geladeira ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.Geladeira ? "" : "text-muted")">Geladeira</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-desk text-@(Model.MesaEstudos ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.MesaEstudos ? "" : "text-muted")">Mesa de Estudos</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-images text-@(Model.QuadrosDecorativos ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.QuadrosDecorativos ? "" : "text-muted")">Quadros Decorativos</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-door-closed text-@(Model.ArmarioEmbutido ? "primary" : "muted") me-2"></i>
+                                <span class="@(Model.ArmarioEmbutido ? "" : "text-muted")">Armário Embutido</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Reservas -->
+    @if (Model.Reservas != null && Model.Reservas.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Histórico de Reservas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Hóspede</th>
+                                        <th>Data Entrada</th>
+                                        <th>Data Saída</th>
+                                        <th>Status</th>
+                                        <th>Origem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reserva in Model.Reservas.OrderByDescending(r => r.DataEntrada))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">@(reserva.Hospede?.NomeCompleto ?? "N/A")</div>
+                                            </td>
+                                            <td>@reserva.DataEntrada.ToString("dd/MM/yyyy")</td>
+                                            <td>@reserva.DataSaida.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                @switch (reserva.Status)
+                                                {
+                                                    case PensionatoApp.Models.StatusReserva.Ativa:
+                                                        <span class="badge bg-success">Ativa</span>
+                                                        break;
+                                                    case PensionatoApp.Models.StatusReserva.Finalizada:
+                                                        <span class="badge bg-secondary">Finalizada</span>
+                                                        break;
+                                                    case PensionatoApp.Models.StatusReserva.Cancelada:
+                                                        <span class="badge bg-danger">Cancelada</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@reserva.Origem</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta suíte ainda não possui histórico de reservas.
+                </div>
+            </div>
+        </div>
+    }
+</div>

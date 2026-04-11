@@ -34,7 +34,9 @@ namespace PensionatoApp.Controllers
             ViewBag.SuitesLivres = todasSuites.Count(s => !s.Reservas.Any(r => 
                 r.Status == StatusReserva.Ativa && 
                 r.DataEntrada <= hoje && 
-                r.DataSaida > hoje));
+                r.DataSaida > hoje) && s.Status == StatusSuite.Livre);
+            ViewBag.SuitesManutencao = todasSuites.Count(s => s.Status == StatusSuite.EmManutencao);
+            ViewBag.SuitesLimpeza = todasSuites.Count(s => s.Status == StatusSuite.EmLimpeza);
             
             return View(todasSuites);
         }
@@ -142,6 +144,34 @@ namespace PensionatoApp.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Suites/ToggleLimpeza/5
+        [HttpPost]
+        public async Task<IActionResult> ToggleLimpeza(int id)
+        {
+            var suite = await _context.Suites.FindAsync(id);
+            if (suite != null)
+            {
+                // Alterna entre EmLimpeza e Livre
+                suite.Status = suite.Status == StatusSuite.EmLimpeza ? StatusSuite.Livre : StatusSuite.EmLimpeza;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: Suites/ToggleManutencao/5
+        [HttpPost]
+        public async Task<IActionResult> ToggleManutencao(int id)
+        {
+            var suite = await _context.Suites.FindAsync(id);
+            if (suite != null)
+            {
+                // Alterna entre EmManutencao e Livre
+                suite.Status = suite.Status == StatusSuite.EmManutencao ? StatusSuite.Livre : StatusSuite.EmManutencao;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: Suites/TodasSuites
