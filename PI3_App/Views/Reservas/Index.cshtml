@@ -41,8 +41,29 @@
                 {
                     <tr>
                         <td>
-                            <strong>@reserva.Hospede.NomeCompleto</strong><br/>
-                            <small class="text-muted">@reserva.Hospede.Telefone</small>
+                            @if (reserva.ReservaHospedes.Any())
+                            {
+                                var hospedePrincipal = reserva.ReservaHospedes.FirstOrDefault(rh => rh.HospedePrincipal);
+                                var hospedeSecundario = reserva.ReservaHospedes.FirstOrDefault(rh => !rh.HospedePrincipal);
+                                
+                                if (hospedePrincipal != null)
+                                {
+                                    <strong>@hospedePrincipal.Hospede.NomeCompleto</strong> <span class="badge bg-primary">Principal</span><br/>
+                                    <small class="text-muted">@hospedePrincipal.Hospede.Telefone</small>
+                                    
+                                    if (hospedeSecundario != null)
+                                    {
+                                        <hr class="my-1"/>
+                                        <strong>@hospedeSecundario.Hospede.NomeCompleto</strong> <span class="badge bg-secondary">Secundário</span><br/>
+                                        <small class="text-muted">@hospedeSecundario.Hospede.Telefone</small>
+                                    }
+                                }
+                            }
+                            else if (reserva.Hospede != null)
+                            {
+                                <strong>@reserva.Hospede.NomeCompleto</strong><br/>
+                                <small class="text-muted">@reserva.Hospede.Telefone</small>
+                            }
                         </td>
                         <td>
                             <span class="badge bg-info">

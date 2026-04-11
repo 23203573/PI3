@@ -1,4 +1,4 @@
-@model PensionatoApp.Models.Reserva
+@model PensionatoApp.ViewModels.CriarReservaViewModel
 @{
     ViewData["Title"] = "Nova Reserva";
 }
@@ -17,17 +17,30 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="HospedeId" class="form-label">Hóspede *</label>
-                        <select asp-for="HospedeId" class="form-select" asp-items="ViewBag.HospedeId">
-                            <option value="">Selecione um hóspede</option>
+                        <label asp-for="HospedePrincipalId" class="form-label">Hóspede Principal *</label>
+                        <select asp-for="HospedePrincipalId" class="form-select" asp-items="ViewBag.HospedePrincipalId">
+                            <option value="">Selecione o hóspede principal</option>
                         </select>
-                        <span asp-validation-for="HospedeId" class="text-danger"></span>
+                        <span asp-validation-for="HospedePrincipalId" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
+                        <label asp-for="HospedeSecundarioId" class="form-label">Hóspede Secundário</label>
+                        <select asp-for="HospedeSecundarioId" class="form-select" asp-items="ViewBag.HospedeSecundarioId">
+                            <option value="">Nenhum (apenas para suítes de casal)</option>
+                        </select>
+                        <span asp-validation-for="HospedeSecundarioId" class="text-danger"></span>
+                        <div class="form-text">Disponível apenas para suítes com cama de casal</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
                         <label asp-for="SuiteId" class="form-label">Suíte *</label>
-                        <select asp-for="SuiteId" class="form-select" asp-items="ViewBag.SuiteId">
+                        <select asp-for="SuiteId" class="form-select" asp-items="ViewBag.SuiteId" id="suiteSelect">
                             <option value="">Selecione uma suíte</option>
                         </select>
                         <span asp-validation-for="SuiteId" class="text-danger"></span>
@@ -165,4 +178,29 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            function toggleHospedeSecundario() {
+                var suiteText = $('#suiteSelect option:selected').text().toLowerCase();
+                var hospedeSecundarioSelect = $('#HospedeSecundarioId');
+                var isDoubleBed = suiteText.includes('casal');
+                
+                if (isDoubleBed) {
+                    hospedeSecundarioSelect.prop('disabled', false);
+                    hospedeSecundarioSelect.parent().find('.form-text').text('Disponível para suítes com cama de casal');
+                } else {
+                    hospedeSecundarioSelect.prop('disabled', true);
+                    hospedeSecundarioSelect.val('');
+                    hospedeSecundarioSelect.parent().find('.form-text').text('Apenas suítes com cama de casal permitem 2 hóspedes');
+                }
+            }
+            
+            // Executar na inicialização
+            toggleHospedeSecundario();
+            
+            // Executar quando a suíte for alterada
+            $('#suiteSelect').on('change', toggleHospedeSecundario);
+        });
+    </script>
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PensionatoApp.Data;
 using PensionatoApp.Models;
 using PensionatoApp.Services;
+using PensionatoApp.ViewModels;
 
 namespace PensionatoApp.Controllers
 {
@@ -26,6 +27,8 @@ namespace PensionatoApp.Controllers
             var reservas = await _context.Reservas
                 .Include(r => r.Suite)
                 .Include(r => r.Hospede)
+                .Include(r => r.ReservaHospedes)
+                    .ThenInclude(rh => rh.Hospede)
                 .Include(r => r.Pagamentos)
                 .OrderByDescending(r => r.DataReserva)
                 .ToListAsync();
@@ -83,21 +86,49 @@ namespace PensionatoApp.Controllers
         // POST: Reservas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SuiteId,HospedeId,DataEntrada,DataSaida,Origem,TemGaragem,PrecoGaragem,TemArCondicionado,PrecoArCondicionado,ValorAdiantado,ValorCaucao,Observacoes")] Reserva reserva)
+        public async Task<IActionResult> Create(CriarReservaViewModel viewModel)
         {
             // Definir valores padrão se necessário
-            if (reserva.PrecoGaragem == 0)
-                reserva.PrecoGaragem = 120.00m;
+            if (viewModel.PrecoGaragem == 0)
+                viewModel.PrecoGaragem = 120.00m;
             
-            if (reserva.PrecoArCondicionado == 0)
-                reserva.PrecoArCondicionado = 150.00m;
+            if (viewModel.PrecoArCondicionado == 0)
+                viewModel.PrecoArCondicionado = 150.00m;
+
+            // Validar se é suíte de casal e se tem dois hóspedes diferentes
+            var suite = await _context.Suites.FindAsync(viewModel.SuiteId);
+            if (suite != null && suite.TipoCama == TipoBed.Solteiro && viewModel.HospedeSecundarioId.HasValue)
+            {
+                ModelState.AddModelError("HospedeSecundarioId", "Suítes de solteiro só permitem 1 hóspede.");
+            }
+
+            if (viewModel.HospedeSecundarioId.HasValue && viewModel.HospedePrincipalId == viewModel.HospedeSecundarioId)
+            {
+                ModelState.AddModelError("HospedeSecundarioId", "O hóspede secundário deve ser diferente do principal.");
+            }
                 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Criar a reserva
+                    var reserva = new Reserva
+                    {
+                        SuiteId = viewModel.SuiteId,
+                        HospedeId = viewModel.HospedePrincipalId, // Mantido para compatibilidade
+                        DataEntrada = viewModel.DataEntrada,
+                        DataSaida = viewModel.DataSaida,
+                        Origem = viewModel.Origem,
+                        TemGaragem = viewModel.TemGaragem,
+                        PrecoGaragem = viewModel.PrecoGaragem,
+                        TemArCondicionado = viewModel.TemArCondicionado,
+                        PrecoArCondicionado = viewModel.PrecoArCondicionado,
+                        ValorAdiantado = viewModel.ValorAdiantado,
+                        ValorCaucao = viewModel.ValorCaucao,
+                        Observacoes = viewModel.Observacoes
+                    };
+
                     // Calcular valor mensal total
-                    var suite = await _context.Suites.FindAsync(reserva.SuiteId);
                     if (suite != null)
                     {
                         reserva.ValorMensalTotal = suite.PrecoMensal;
@@ -113,6 +144,28 @@ namespace PensionatoApp.Controllers
                     }
 
                     _context.Add(reserva);
+                    await _context.SaveChangesAsync();
+
+                    // Criar relacionamentos na tabela ReservaHospedes
+                    var reservaHospedePrincipal = new ReservaHospede
+                    {
+                        ReservaId = reserva.Id,
+                        HospedeId = viewModel.HospedePrincipalId,
+                        HospedePrincipal = true
+                    };
+                    _context.ReservaHospedes.Add(reservaHospedePrincipal);
+
+                    if (viewModel.HospedeSecundarioId.HasValue)
+                    {
+                        var reservaHospedeSecundario = new ReservaHospede
+                        {
+                            ReservaId = reserva.Id,
+                            HospedeId = viewModel.HospedeSecundarioId.Value,
+                            HospedePrincipal = false
+                        };
+                        _context.ReservaHospedes.Add(reservaHospedeSecundario);
+                    }
+
                     await _context.SaveChangesAsync();
 
                     // Criar pagamentos mensais
@@ -132,19 +185,21 @@ namespace PensionatoApp.Controllers
                 .Where(s => s.Status == StatusSuite.Livre)
                 .Select(s => new {
                     s.Id,
-                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {(s.TipoCama == TipoBed.Casal ? "casal" : "solteiro")}"
+                    s.TipoCama,
+                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {(s.TipoCama == TipoBed.Casal ? "casal (até 2 hóspedes)" : "solteiro (1 hóspede)")}"
                 })
                 .ToListAsync();
                 
-            ViewData["SuiteId"] = new SelectList(suitesDisponiveis, "Id", "Display", reserva.SuiteId);
-            ViewData["HospedeId"] = new SelectList(
+            ViewData["SuiteId"] = new SelectList(suitesDisponiveis, "Id", "Display", viewModel.SuiteId);
+            ViewData["HospedePrincipalId"] = new SelectList(
                 await _context.Hospedes.Where(h => h.Ativo).ToListAsync(),
-                "Id", "NomeCompleto", reserva.HospedeId);
-                
-            return View(reserva);
-        }
-
-        // GET: Reservas/Edit/5
+                "Id", "NomeCompleto", viewModel.HospedePrincipalId);
+            ViewData["HospedeSecundarioId"] = new SelectList(
+                await _context.Hospedes.Where(h => h.Ativo).ToListAsync(),
+                "Id", "NomeCompleto", viewModel.HospedeSecundarioId);
+            
+            return View(viewModel);
+        }        // GET: Reservas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

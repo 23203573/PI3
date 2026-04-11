@@ -63,6 +63,7 @@ namespace PensionatoApp.Models
         // Relacionamentos - NÃO são obrigatórios para validação
         public virtual Suite? Suite { get; set; }
         public virtual Hospede? Hospede { get; set; }
+        public virtual ICollection<ReservaHospede> ReservaHospedes { get; set; } = new List<ReservaHospede>();
         public virtual ICollection<Pagamento> Pagamentos { get; set; } = new List<Pagamento>();
     }
 }

@@ -47,5 +47,6 @@ namespace PensionatoApp.Models
         
         // Relacionamentos
         public virtual ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
+        public virtual ICollection<ReservaHospede> ReservaHospedes { get; set; } = new List<ReservaHospede>();
     }
 }

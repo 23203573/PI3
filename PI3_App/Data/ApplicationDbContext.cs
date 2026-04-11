@@ -14,11 +14,11 @@ namespace PensionatoApp.Data
         public DbSet<Suite> Suites { get; set; }
         public DbSet<Hospede> Hospedes { get; set; }
         public DbSet<Reserva> Reservas { get; set; }
+        public DbSet<ReservaHospede> ReservaHospedes { get; set; }
         public DbSet<Pagamento> Pagamentos { get; set; }
         public DbSet<RegistroLimpeza> RegistrosLimpeza { get; set; }
         public DbSet<RegistroManutencao> RegistrosManutencao { get; set; }
         public DbSet<Notificacao> Notificacoes { get; set; }
-        public DbSet<ReceitaMensal> ReceitasMensais { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
