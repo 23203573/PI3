@@ -128,15 +128,19 @@
                 <h5><i class="fas fa-chart-pie"></i> Taxa de Ocupação</h5>
             </div>
             <div class="card-body">
-                @{
-                    var taxaOcupacao = Model.TotalSuites > 0 ? (Model.SuitesOcupadas * 100 / Model.TotalSuites) : 0;
-                }
-                <div class="progress mb-3" style="height: 25px;">
-                    <div class="progress-bar" role="progressbar" style="width: @taxaOcupacao%; background-color: var(--cor-dourado);">
-                        @taxaOcupacao%
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Selecionar Data:</label>
+                    <input type="date" id="dataSelecionada" class="form-control" value="@Model.DataSelecionada.ToString("yyyy-MM-dd")" />
                 </div>
-                <p class="text-muted">@Model.SuitesOcupadas de @Model.TotalSuites suítes ocupadas</p>
+                
+                <div id="ocupacaoContainer">
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: @Model.TaxaOcupacaoData%; background-color: var(--cor-dourado);">
+                            <span id="porcentagemTexto">@Model.TaxaOcupacaoData%</span>
+                        </div>
+                    </div>
+                    <p id="ocupacaoTexto" class="text-muted">@Model.SuitesOcupadasData de @Model.TotalSuites suítes ocupadas em @Model.DataSelecionada.ToString("dd/MM/yyyy")</p>
+                </div>
             </div>
         </div>
     </div>
@@ -159,3 +163,38 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dataSelecionada = document.getElementById('dataSelecionada');
+    const progressBar = document.getElementById('progressBar');
+    const porcentagemTexto = document.getElementById('porcentagemTexto');
+    const ocupacaoTexto = document.getElementById('ocupacaoTexto');
+    
+    dataSelecionada.addEventListener('change', function() {
+        const dataEscolhida = this.value;
+        
+        if (dataEscolhida) {
+            // Mostrar loading
+            progressBar.style.width = '0%';
+            porcentagemTexto.textContent = 'Carregando...';
+            ocupacaoTexto.textContent = 'Carregando dados de ocupação...';
+            
+            // Fazer requisição AJAX
+            fetch(`@Url.Action("ObterOcupacaoPorData", "Home")?data=${dataEscolhida}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Atualizar a interface
+                    progressBar.style.width = data.taxaOcupacao + '%';
+                    porcentagemTexto.textContent = data.taxaOcupacao + '%';
+                    ocupacaoTexto.textContent = `${data.suitesOcupadas} de ${data.totalSuites} suítes ocupadas em ${data.data}`;
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar dados de ocupação:', error);
+                    porcentagemTexto.textContent = 'Erro';
+                    ocupacaoTexto.textContent = 'Erro ao carregar dados de ocupação';
+                });
+        }
+    });
+});
+</script>

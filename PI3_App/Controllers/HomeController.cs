@@ -35,10 +35,50 @@ namespace PensionatoApp.Controllers
                                p.DataPagamento.Value.Month == DateTime.Now.Month &&
                                p.DataPagamento.Value.Year == DateTime.Now.Year)
                     .SumAsync(p => p.ValorPago ?? 0),
-                NotificacoesPendentes = await _context.Notificacoes.CountAsync(n => !n.Lida)
+                NotificacoesPendentes = await _context.Notificacoes.CountAsync(n => !n.Lida),
+                DataSelecionada = DateTime.Today
             };
 
+            // Calcular ocupação para hoje
+            var ocupacaoHoje = await CalcularOcupacaoPorData(DateTime.Today);
+            dashboard.SuitesOcupadasData = ocupacaoHoje.SuitesOcupadas;
+            dashboard.TaxaOcupacaoData = ocupacaoHoje.TaxaOcupacao;
+
             return View(dashboard);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObterOcupacaoPorData(DateTime data)
+        {
+            var ocupacao = await CalcularOcupacaoPorData(data);
+            return Json(new 
+            {
+                suitesOcupadas = ocupacao.SuitesOcupadas,
+                totalSuites = ocupacao.TotalSuites,
+                taxaOcupacao = ocupacao.TaxaOcupacao,
+                data = data.ToString("dd/MM/yyyy")
+            });
+        }
+
+        private async Task<OcupacaoInfo> CalcularOcupacaoPorData(DateTime data)
+        {
+            var totalSuites = await _context.Suites.CountAsync();
+            
+            // Contar suítes ocupadas na data específica
+            var suitesOcupadas = await _context.Reservas
+                .Where(r => r.DataEntrada <= data && 
+                           r.DataSaida > data && 
+                           r.Status == StatusReserva.Ativa)
+                .CountAsync();
+
+            var taxaOcupacao = totalSuites > 0 ? (suitesOcupadas * 100 / totalSuites) : 0;
+
+            return new OcupacaoInfo
+            {
+                SuitesOcupadas = suitesOcupadas,
+                TotalSuites = totalSuites,
+                TaxaOcupacao = taxaOcupacao
+            };
         }
 
         public IActionResult Privacy()
@@ -115,6 +155,16 @@ namespace PensionatoApp.Controllers
             public int PagamentosPendentes { get; set; }
             public decimal ReceitaMensal { get; set; }
             public int NotificacoesPendentes { get; set; }
+            public DateTime DataSelecionada { get; set; }
+            public int SuitesOcupadasData { get; set; }
+            public int TaxaOcupacaoData { get; set; }
+        }
+
+        public class OcupacaoInfo
+        {
+            public int SuitesOcupadas { get; set; }
+            public int TotalSuites { get; set; }
+            public int TaxaOcupacao { get; set; }
         }
     }
 }
