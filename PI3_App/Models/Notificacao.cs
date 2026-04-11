@@ -9,7 +9,8 @@ namespace PensionatoApp.Models
         PagamentoPendente,
         ReservaFutura,
         VencimentoAluguel,
-        Manutencao
+        Manutencao,
+        Limpeza
     }
 
     public class Notificacao

@@ -131,11 +131,26 @@ namespace PensionatoApp.Controllers
 
             foreach (var reserva in reservasVencidas)
             {
-                var notificacaoExiste = await _context.Notificacoes
-                    .AnyAsync(n => n.ReservaId == reserva.Id && n.Tipo == TipoNotificacao.CheckOut && !n.Lida);
+                // Verificar se já existe notificação para hoje
+                var notificacaoHoje = await _context.Notificacoes
+                    .AnyAsync(n => n.ReservaId == reserva.Id && 
+                                  n.Tipo == TipoNotificacao.CheckOut && 
+                                  n.DataCriacao.Date == hoje);
 
-                if (!notificacaoExiste)
+                if (!notificacaoHoje)
                 {
+                    // Marcar notificações anteriores como lidas
+                    var notificacoesAnteriores = await _context.Notificacoes
+                        .Where(n => n.ReservaId == reserva.Id && 
+                                   n.Tipo == TipoNotificacao.CheckOut && 
+                                   !n.Lida)
+                        .ToListAsync();
+                    
+                    foreach (var notif in notificacoesAnteriores)
+                    {
+                        notif.Lida = true;
+                    }
+
                     var diasAtraso = (hoje - reserva.DataSaida).Days;
                     await _context.Notificacoes.AddAsync(new Notificacao
                     {
@@ -144,6 +159,12 @@ namespace PensionatoApp.Controllers
                         Tipo = TipoNotificacao.CheckOut,
                         ReservaId = reserva.Id
                     });
+
+                    // Manter a suíte como ocupada até o checkout manual
+                    if (reserva.Suite != null && reserva.Suite.Status == StatusSuite.Livre)
+                    {
+                        reserva.Suite.Status = StatusSuite.Ocupada;
+                    }
                 }
             }
 

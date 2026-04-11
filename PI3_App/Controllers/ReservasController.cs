@@ -225,6 +225,17 @@ namespace PensionatoApp.Controllers
                 {
                     reserva.Suite.Status = StatusSuite.EmLimpeza;
                 }
+
+                // Marcar todas as notificações de checkout desta reserva como lidas
+                var notificacoesCheckout = await _context.Notificacoes
+                    .Where(n => n.ReservaId == reserva.Id && n.Tipo == TipoNotificacao.CheckOut)
+                    .ToListAsync();
+                    
+                foreach (var notificacao in notificacoesCheckout)
+                {
+                    notificacao.Lida = true;
+                }
+
                 await _context.SaveChangesAsync();
             }
 

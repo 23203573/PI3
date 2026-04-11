@@ -121,11 +121,26 @@ namespace PensionatoApp.Controllers
 
             foreach (var reserva in reservasVencidas)
             {
-                var notificacaoExiste = await _context.Notificacoes
-                    .AnyAsync(n => n.ReservaId == reserva.Id && n.Tipo == TipoNotificacao.CheckOut && !n.Lida);
+                // Verificar se já existe notificação para hoje
+                var notificacaoHoje = await _context.Notificacoes
+                    .AnyAsync(n => n.ReservaId == reserva.Id && 
+                                  n.Tipo == TipoNotificacao.CheckOut && 
+                                  n.DataCriacao.Date == hoje);
 
-                if (!notificacaoExiste)
+                if (!notificacaoHoje)
                 {
+                    // Marcar notificações anteriores como lidas
+                    var notificacoesAnteriores = await _context.Notificacoes
+                        .Where(n => n.ReservaId == reserva.Id && 
+                                   n.Tipo == TipoNotificacao.CheckOut && 
+                                   !n.Lida)
+                        .ToListAsync();
+                    
+                    foreach (var notif in notificacoesAnteriores)
+                    {
+                        notif.Lida = true;
+                    }
+
                     var diasAtraso = (hoje - reserva.DataSaida).Days;
                     await _context.Notificacoes.AddAsync(new Notificacao
                     {
@@ -134,6 +149,12 @@ namespace PensionatoApp.Controllers
                         Tipo = TipoNotificacao.CheckOut,
                         ReservaId = reserva.Id
                     });
+
+                    // Manter a suíte como ocupada até o checkout manual
+                    if (reserva.Suite != null && reserva.Suite.Status == StatusSuite.Livre)
+                    {
+                        reserva.Suite.Status = StatusSuite.Ocupada;
+                    }
                 }
             }
 
@@ -178,7 +199,7 @@ namespace PensionatoApp.Controllers
                 var notificacaoExiste = await _context.Notificacoes
                     .AnyAsync(n => n.Tipo == TipoNotificacao.Manutencao && 
                                   n.Mensagem.Contains($"Suíte {suite.Numero}") && 
-                                  n.DataCriacao.Date == hoje);
+                                  !n.Lida);
 
                 if (!notificacaoExiste)
                 {
@@ -191,7 +212,30 @@ namespace PensionatoApp.Controllers
                 }
             }
 
-            // 4. Verificar pagamentos pendentes
+            // 4. Verificar suítes que precisam de limpeza
+            var suitesLimpeza = await _context.Suites
+                .Where(s => s.Status == StatusSuite.EmLimpeza)
+                .ToListAsync();
+
+            foreach (var suite in suitesLimpeza)
+            {
+                var notificacaoExiste = await _context.Notificacoes
+                    .AnyAsync(n => n.Tipo == TipoNotificacao.Limpeza && 
+                                  n.Mensagem.Contains($"Suíte {suite.Numero}") && 
+                                  !n.Lida);
+
+                if (!notificacaoExiste)
+                {
+                    await _context.Notificacoes.AddAsync(new Notificacao
+                    {
+                        Titulo = $"Limpeza Pendente - Suíte {suite.Numero}",
+                        Mensagem = $"A suíte {suite.Numero} está marcada para limpeza. Verifique o andamento da limpeza e atualize o status quando concluído.",
+                        Tipo = TipoNotificacao.Limpeza
+                    });
+                }
+            }
+
+            // 5. Verificar pagamentos pendentes
             var pagamentosPendentes = await _context.Pagamentos
                 .Include(p => p.Reserva)
                     .ThenInclude(r => r.Suite)
