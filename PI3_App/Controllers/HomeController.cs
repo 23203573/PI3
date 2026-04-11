@@ -22,24 +22,22 @@ namespace PensionatoApp.Controllers
             await GerarNotificacoesAutomaticas();
             
             var hoje = DateTime.Today;
+            var totalSuites = await _context.Suites.CountAsync();
+            var suitesOcupadasHoje = await _context.Reservas.CountAsync(r => 
+                r.Status == StatusReserva.Ativa && 
+                r.DataEntrada <= hoje && 
+                r.DataSaida > hoje);
+            var suitesIndisponiveis = await _context.Suites.CountAsync(s => 
+                s.Status == StatusSuite.EmManutencao || 
+                s.Status == StatusSuite.EmLimpeza);
             
             var dashboard = new DashboardViewModel
             {
-                TotalSuites = await _context.Suites.CountAsync(),
+                TotalSuites = totalSuites,
                 // Suítes ocupadas no dia atual (baseado em reservas ativas que abranjam hoje)
-                SuitesOcupadas = await _context.Reservas.CountAsync(r => 
-                    r.Status == StatusReserva.Ativa && 
-                    r.DataEntrada <= hoje && 
-                    r.DataSaida > hoje),
+                SuitesOcupadas = suitesOcupadasHoje,
                 // Suítes livres no momento atual (total - ocupadas - em manutenção - em limpeza)
-                SuitesLivres = await _context.Suites.CountAsync() - 
-                    await _context.Reservas.CountAsync(r => 
-                        r.Status == StatusReserva.Ativa && 
-                        r.DataEntrada <= hoje && 
-                        r.DataSaida > hoje) -
-                    await _context.Suites.CountAsync(s => 
-                        s.Status == StatusSuite.EmManutencao || 
-                        s.Status == StatusSuite.EmLimpeza),
+                SuitesLivres = totalSuites - suitesOcupadasHoje - suitesIndisponiveis,
                 // Hóspedes ativos no dia atual (que têm reserva ativa hoje)
                 TotalHospedes = await _context.Reservas
                     .Include(r => r.Hospede)
@@ -54,15 +52,12 @@ namespace PensionatoApp.Controllers
                     r.DataEntrada <= hoje && 
                     r.DataSaida > hoje),
                 PagamentosPendentes = await _context.Pagamentos.CountAsync(p => p.Status == StatusPagamento.Pendente),
-                // Receita mensal baseada em pagamentos de reservas realizadas no mês atual
-                ReceitaMensal = await _context.Pagamentos
-                    .Include(p => p.Reserva)
-                    .Where(p => p.Status == StatusPagamento.Pago && 
-                               p.DataPagamento.HasValue &&
-                               p.Reserva != null &&
-                               p.Reserva.DataEntrada.Month == DateTime.Now.Month &&
-                               p.Reserva.DataEntrada.Year == DateTime.Now.Year)
-                    .SumAsync(p => p.ValorPago ?? 0),
+                // Receita mensal baseada no valor total das reservas realizadas no mês atual
+                ReceitaMensal = await _context.Reservas
+                    .Where(r => r.DataEntrada.Month == DateTime.Now.Month &&
+                               r.DataEntrada.Year == DateTime.Now.Year &&
+                               r.Status == StatusReserva.Ativa)
+                    .SumAsync(r => r.ValorMensalTotal),
                 NotificacoesPendentes = await _context.Notificacoes.CountAsync(n => !n.Lida),
                 DataSelecionada = DateTime.Today
             };
