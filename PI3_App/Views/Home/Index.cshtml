@@ -77,19 +77,13 @@
     </div>
     
     <div class="col-md-3">
-        <a href="@Url.Action("Pendentes", "Pagamentos")" class="text-decoration-none">
+        <a href="@Url.Action("Index", "Pagamentos")" class="text-decoration-none">
             <div class="card border-danger h-100">
                 <div class="card-body text-center d-flex flex-column">
-                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
-                    <h5 class="card-title">Pagamentos Pendentes</h5>
+                    <i class="fas fa-money-check-alt fa-2x text-danger mb-2"></i>
+                    <h5 class="card-title">Pagamentos</h5>
                     <h3 class="text-danger mb-3">@Model.PagamentosPendentes</h3>
-                    <div class="mt-auto">
-                        <a href="@Url.Action("CadastrarManual", "Pagamentos")" 
-                           class="btn btn-sm btn-warning mb-1" 
-                           onclick="event.stopPropagation(); event.preventDefault(); window.location.href=this.href;">
-                            <i class="fas fa-plus"></i> Cadastrar Manual
-                        </a>
-                    </div>
+                    <small class="text-muted">Pendentes</small>
                 </div>
             </div>
         </a>
@@ -160,9 +154,6 @@
                     </a>
                     <a href="@Url.Action("Create", "Hospedes")" class="btn btn-info">
                         <i class="fas fa-user-plus"></i> Novo Hóspede
-                    </a>
-                    <a href="@Url.Action("Index", "Pagamentos")" class="btn btn-success">
-                        <i class="fas fa-money-check-alt"></i> Gerenciar Pagamentos
                     </a>
                 </div>
             </div>
