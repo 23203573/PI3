@@ -174,7 +174,9 @@ namespace PensionatoApp.Controllers
                 Telefone = form.Telefone,
                 Documento = form.Documento,
                 DataNascimento = form.DataNascimento,
-                Endereco = form.Endereco
+                Endereco = form.Endereco,
+                ContatoEmergenciaNome = form.ContatoEmergenciaNome,
+                ContatoEmergenciaTelefone = form.ContatoEmergenciaTelefone
             };
 
             // Validações de data no servidor
@@ -228,6 +230,8 @@ namespace PensionatoApp.Controllers
                         Documento = model.Documento,
                         DataNascimento = model.DataNascimento,
                         Endereco = model.Endereco,
+                        ContatoEmergenciaNome = model.ContatoEmergenciaNome,
+                        ContatoEmergenciaTelefone = model.ContatoEmergenciaTelefone,
                         DataCadastro = DateTime.Now,
                         Ativo = true
                     };
@@ -331,6 +335,8 @@ namespace PensionatoApp.Controllers
             public string Documento { get; set; } = "";
             public DateTime DataNascimento { get; set; }
             public string Endereco { get; set; } = "";
+            public string ContatoEmergenciaNome { get; set; } = "";
+            public string ContatoEmergenciaTelefone { get; set; } = "";
         }
         
         public class ReservaPublicaFormViewModel
@@ -353,6 +359,8 @@ namespace PensionatoApp.Controllers
             public string Documento { get; set; } = "";
             public DateTime DataNascimento { get; set; }
             public string Endereco { get; set; } = "";
+            public string ContatoEmergenciaNome { get; set; } = "";
+            public string ContatoEmergenciaTelefone { get; set; } = "";
         }
     }
 }

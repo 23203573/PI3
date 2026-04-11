@@ -56,7 +56,7 @@
             </div>
             
             <div class="mb-3">
-                <label asp-for="Endereco" class="form-label">Endereço</label>
+                <label asp-for="Endereco" class="form-label">Endereço *</label>
                 <input asp-for="Endereco" class="form-control" placeholder="Rua, número, bairro, cidade" />
                 <span asp-validation-for="Endereco" class="text-danger"></span>
             </div>
@@ -64,14 +64,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="ContatoEmergenciaNome" class="form-label">Contato de Emergência - Nome</label>
+                        <label asp-for="ContatoEmergenciaNome" class="form-label">Contato de Emergência - Nome *</label>
                         <input asp-for="ContatoEmergenciaNome" class="form-control" placeholder="Nome do contato" />
                         <span asp-validation-for="ContatoEmergenciaNome" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label asp-for="ContatoEmergenciaTelefone" class="form-label">Contato de Emergência - Telefone</label>
+                        <label asp-for="ContatoEmergenciaTelefone" class="form-label">Contato de Emergência - Telefone *</label>
                         <input asp-for="ContatoEmergenciaTelefone" class="form-control" placeholder="(11) 99999-9999" />
                         <span asp-validation-for="ContatoEmergenciaTelefone" class="text-danger"></span>
                     </div>
@@ -110,6 +110,9 @@
                     <li>Data de Nascimento</li>
                     <li>Telefone</li>
                     <li>E-mail</li>
+                    <li>Endereço</li>
+                    <li>Contato de Emergência - Nome</li>
+                    <li>Contato de Emergência - Telefone</li>
                 </ul>
                 
                 <hr/>

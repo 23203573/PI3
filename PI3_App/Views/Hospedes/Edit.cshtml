@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Endereco" class="form-label">Endereço Completo</label>
+                            <label asp-for="Endereco" class="form-label">Endereço Completo *</label>
                             <textarea asp-for="Endereco" class="form-control" rows="3" placeholder="Endereço completo do hóspede"></textarea>
                             <span asp-validation-for="Endereco" class="text-danger"></span>
                         </div>
@@ -102,13 +102,13 @@
                         <h6 class="text-muted mb-3"><i class="fas fa-exclamation-triangle me-1"></i>Contato de Emergência</h6>
                         
                         <div class="mb-3">
-                            <label asp-for="ContatoEmergenciaNome" class="form-label">Nome do Contato</label>
+                            <label asp-for="ContatoEmergenciaNome" class="form-label">Nome do Contato *</label>
                             <input asp-for="ContatoEmergenciaNome" class="form-control" placeholder="Nome completo do contato de emergência">
                             <span asp-validation-for="ContatoEmergenciaNome" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ContatoEmergenciaTelefone" class="form-label">Telefone do Contato</label>
+                            <label asp-for="ContatoEmergenciaTelefone" class="form-label">Telefone do Contato *</label>
                             <input asp-for="ContatoEmergenciaTelefone" class="form-control" placeholder="(00) 00000-0000">
                             <span asp-validation-for="ContatoEmergenciaTelefone" class="text-danger"></span>
                         </div>

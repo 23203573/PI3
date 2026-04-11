@@ -27,14 +27,17 @@ namespace PensionatoApp.Models
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         
+        [Required(ErrorMessage = "O endereço é obrigatório")]
         [StringLength(200)]
-        public string? Endereco { get; set; }
+        public string Endereco { get; set; } = string.Empty;
         
+        [Required(ErrorMessage = "O nome do contato de emergência é obrigatório")]
         [StringLength(100)]
-        public string? ContatoEmergenciaNome { get; set; }
+        public string ContatoEmergenciaNome { get; set; } = string.Empty;
         
+        [Required(ErrorMessage = "O telefone do contato de emergência é obrigatório")]
         [StringLength(20)]
-        public string? ContatoEmergenciaTelefone { get; set; }
+        public string ContatoEmergenciaTelefone { get; set; } = string.Empty;
         
         public string? Observacoes { get; set; }
         

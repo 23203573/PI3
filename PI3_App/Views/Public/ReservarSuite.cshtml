@@ -158,6 +158,19 @@
                             </div>
                         </div>
                         
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ContatoEmergenciaNome" class="form-label">Contato de Emergência - Nome *</label>
+                                <input asp-for="ContatoEmergenciaNome" type="text" class="form-control" required />
+                                <span asp-validation-for="ContatoEmergenciaNome" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ContatoEmergenciaTelefone" class="form-label">Contato de Emergência - Telefone *</label>
+                                <input asp-for="ContatoEmergenciaTelefone" type="tel" class="form-control" required />
+                                <span asp-validation-for="ContatoEmergenciaTelefone" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
                             <strong>Importante:</strong> Após enviar a reserva, nossa equipe entrará em contato para confirmar os detalhes e finalizar o processo.
