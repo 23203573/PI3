@@ -48,25 +48,22 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col" class="text-center" style="width: 8%;">
+                            <th scope="col" class="text-center" style="width: 10%;">
                                 <i class="fas fa-door-open me-1"></i>Suíte
                             </th>
-                            <th scope="col" style="width: 15%;">
+                            <th scope="col" style="width: 18%;">
                                 <i class="fas fa-dollar-sign me-1"></i>Preço Base
                             </th>
-                            <th scope="col" style="width: 12%;">
+                            <th scope="col" style="width: 15%;">
                                 <i class="fas fa-bed me-1"></i>Cama
                             </th>
-                            <th scope="col" class="text-center" style="width: 15%;">
+                            <th scope="col" class="text-center" style="width: 18%;">
                                 <i class="fas fa-cogs me-1"></i>Serviços
                             </th>
-                            <th scope="col" class="text-center" style="width: 12%;">
+                            <th scope="col" class="text-center" style="width: 15%;">
                                 <i class="fas fa-info-circle me-1"></i>Status
                             </th>
-                            <th scope="col" style="width: 20%;">
-                                <i class="fas fa-user me-1"></i>Ocupação Atual
-                            </th>
-                            <th scope="col" class="text-center" style="width: 18%;">
+                            <th scope="col" class="text-center" style="width: 24%;">
                                 <i class="fas fa-tools me-1"></i>Ações
                             </th>
                         </tr>
@@ -132,37 +129,24 @@
                                 </td>
                                 
                                 <td class="text-center">
-                                    @switch (suite.Status)
+                                    @if (isOcupada)
                                     {
-                                        case PensionatoApp.Models.StatusSuite.Livre:
-                                            <span class="badge bg-secondary">Livre</span>
-                                            break;
-                                        case PensionatoApp.Models.StatusSuite.Ocupada:
-                                            <span class="badge bg-warning">Ocupada</span>
-                                            break;
-                                        case PensionatoApp.Models.StatusSuite.EmManutencao:
-                                            <span class="badge bg-danger">Em Manutenção</span>
-                                            break;
-                                        case PensionatoApp.Models.StatusSuite.EmLimpeza:
-                                            <span class="badge bg-info">Em Limpeza</span>
-                                            break;
-                                    }
-                                </td>
-                                
-                                <td>
-                                    @if (isOcupada && reservaAtiva != null)
-                                    {
-                                        <div class="fw-semibold text-dark">@(reservaAtiva.Hospede?.NomeCompleto ?? "N/A")</div>
-                                        <div class="small text-muted">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            @reservaAtiva.DataEntrada.ToString("dd/MM/yyyy") - @reservaAtiva.DataSaida.ToString("dd/MM/yyyy")
-                                        </div>
+                                        <span class="badge bg-warning">Ocupada</span>
                                     }
                                     else
                                     {
-                                        <span class="text-muted">
-                                            <i class="fas fa-check-circle me-1"></i>Livre
-                                        </span>
+                                        @switch (suite.Status)
+                                        {
+                                            case PensionatoApp.Models.StatusSuite.EmManutencao:
+                                                <span class="badge bg-danger">Em Manutenção</span>
+                                                break;
+                                            case PensionatoApp.Models.StatusSuite.EmLimpeza:
+                                                <span class="badge bg-info">Em Limpeza</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-success">Livre</span>
+                                                break;
+                                        }
                                     }
                                 </td>
                                 
