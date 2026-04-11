@@ -62,6 +62,14 @@ namespace PensionatoApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NomeCompleto,EhBrasileiro,RG,CPF,TipoDocumentoEstrangeiro,NumeroDocumentoEstrangeiro,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes")] Hospede hospede)
         {
+            // Validação de documentos duplicados - DASHBOARD NÃO PERMITE
+            var documentoDuplicado = await ValidarDocumentoDuplicado(hospede, null);
+            if (!string.IsNullOrEmpty(documentoDuplicado))
+            {
+                ModelState.AddModelError(string.Empty, $"Já existe um hóspede cadastrado com o documento {documentoDuplicado}. Não é possível salvar o cadastro.");
+                return View(hospede);
+            }
+            
             // Validação customizada baseada na nacionalidade
             if (hospede.EhBrasileiro)
             {
@@ -127,6 +135,14 @@ namespace PensionatoApp.Controllers
             if (id != hospede.Id)
             {
                 return NotFound();
+            }
+
+            // Validação de documentos duplicados - DASHBOARD NÃO PERMITE
+            var documentoDuplicado = await ValidarDocumentoDuplicado(hospede, id);
+            if (!string.IsNullOrEmpty(documentoDuplicado))
+            {
+                ModelState.AddModelError(string.Empty, $"Já existe outro hóspede cadastrado com o documento {documentoDuplicado}. Não é possível salvar as alterações.");
+                return View(hospede);
             }
 
             // Validação customizada baseada na nacionalidade
@@ -217,6 +233,58 @@ namespace PensionatoApp.Controllers
         private bool HospedeExists(int id)
         {
             return _context.Hospedes.Any(e => e.Id == id);
+        }
+        
+        /// <summary>
+        /// Valida se já existe um hóspede com os mesmos documentos
+        /// </summary>
+        /// <param name="hospede">Hóspede a validar</param>
+        /// <param name="exemptId">ID para excluir da validação (usado no Edit)</param>
+        /// <returns>Documento duplicado encontrado ou null se não houver duplicata</returns>
+        private async Task<string?> ValidarDocumentoDuplicado(Hospede hospede, int? exemptId)
+        {
+            if (hospede.EhBrasileiro)
+            {
+                // Validar CPF
+                if (!string.IsNullOrWhiteSpace(hospede.CPF))
+                {
+                    var cpfExiste = await _context.Hospedes
+                        .Where(h => h.CPF == hospede.CPF && h.Ativo == true)
+                        .Where(h => exemptId == null || h.Id != exemptId)
+                        .AnyAsync();
+                    
+                    if (cpfExiste)
+                        return hospede.CPF;
+                }
+                
+                // Validar RG
+                if (!string.IsNullOrWhiteSpace(hospede.RG))
+                {
+                    var rgExiste = await _context.Hospedes
+                        .Where(h => h.RG == hospede.RG && h.Ativo == true)
+                        .Where(h => exemptId == null || h.Id != exemptId)
+                        .AnyAsync();
+                    
+                    if (rgExiste)
+                        return hospede.RG;
+                }
+            }
+            else
+            {
+                // Validar documento estrangeiro
+                if (!string.IsNullOrWhiteSpace(hospede.NumeroDocumentoEstrangeiro))
+                {
+                    var docEstrangeiroExiste = await _context.Hospedes
+                        .Where(h => h.NumeroDocumentoEstrangeiro == hospede.NumeroDocumentoEstrangeiro && h.Ativo == true)
+                        .Where(h => exemptId == null || h.Id != exemptId)
+                        .AnyAsync();
+                    
+                    if (docEstrangeiroExiste)
+                        return hospede.NumeroDocumentoEstrangeiro;
+                }
+            }
+            
+            return null;
         }
     }
 }

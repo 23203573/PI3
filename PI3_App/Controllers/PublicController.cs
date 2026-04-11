@@ -216,14 +216,17 @@ namespace PensionatoApp.Controllers
                     return View(model);
                 }
 
-                // Criar ou encontrar hóspede
-                var hospede = await _context.Hospedes
-                    .FirstOrDefaultAsync(h => h.Email == model.Email || 
-                        h.CPF == model.Documento || h.RG == model.Documento || 
-                        h.NumeroDocumentoEstrangeiro == model.Documento);
+                // Criar ou encontrar hóspede - ÁREA PÚBLICA: INATIVA EXISTENTE E CRIA NOVO
+                var hospedeExistente = await BuscarHospedePorDocumentos(model.Documento);
 
-                if (hospede == null)
+                Hospede hospede;
+                if (hospedeExistente != null)
                 {
+                    // Inativar o hóspede existente
+                    hospedeExistente.Ativo = false;
+                    _context.Update(hospedeExistente);
+                    
+                    // Criar novo hóspede ativo
                     hospede = new Hospede
                     {
                         NomeCompleto = model.NomeCompleto,
@@ -239,9 +242,29 @@ namespace PensionatoApp.Controllers
                         DataCadastro = DateTime.Now,
                         Ativo = true
                     };
-                    _context.Hospedes.Add(hospede);
-                    await _context.SaveChangesAsync();
                 }
+                else
+                {
+                    // Criar novo hóspede se não existir
+                    hospede = new Hospede
+                    {
+                        NomeCompleto = model.NomeCompleto,
+                        Email = model.Email,
+                        Telefone = model.Telefone,
+                        // Assumindo que reservas públicas são de brasileiros por padrão
+                        EhBrasileiro = true,
+                        CPF = model.Documento, // Por padrão, considera como CPF
+                        DataNascimento = model.DataNascimento,
+                        Endereco = model.Endereco,
+                        ContatoEmergenciaNome = model.ContatoEmergenciaNome,
+                        ContatoEmergenciaTelefone = model.ContatoEmergenciaTelefone,
+                        DataCadastro = DateTime.Now,
+                        Ativo = true
+                    };
+                }
+                
+                _context.Hospedes.Add(hospede);
+                await _context.SaveChangesAsync();
 
                 // Buscar a suíte para calcular valores
                 var suite = await _context.Suites.FindAsync(model.SuiteId);
@@ -365,6 +388,23 @@ namespace PensionatoApp.Controllers
             public string Endereco { get; set; } = "";
             public string ContatoEmergenciaNome { get; set; } = "";
             public string ContatoEmergenciaTelefone { get; set; } = "";
+        }
+        
+        /// <summary>
+        /// Busca hóspede por qualquer um dos documentos (CPF, RG ou documento estrangeiro)
+        /// </summary>
+        /// <param name="documento">Documento a buscar</param>
+        /// <returns>Hóspede encontrado ou null</returns>
+        private async Task<Hospede?> BuscarHospedePorDocumentos(string documento)
+        {
+            if (string.IsNullOrWhiteSpace(documento))
+                return null;
+                
+            return await _context.Hospedes
+                .FirstOrDefaultAsync(h => h.Ativo && 
+                    (h.CPF == documento || 
+                     h.RG == documento || 
+                     h.NumeroDocumentoEstrangeiro == documento));
         }
     }
 }
