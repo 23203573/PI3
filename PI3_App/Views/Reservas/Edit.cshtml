@@ -97,12 +97,7 @@
                                 <label asp-for="Origem" class="form-label">
                                     <i class="fas fa-map-marker-alt me-2"></i>Origem da Reserva
                                 </label>
-                                <select asp-for="Origem" class="form-select">
-                                    <option value="">Selecione a origem</option>
-                                    <option value="@PensionatoApp.Models.OrigemReserva.Site">Site</option>
-                                    <option value="@PensionatoApp.Models.OrigemReserva.Telefone">Telefone</option>
-                                    <option value="@PensionatoApp.Models.OrigemReserva.Presencial">Presencial</option>
-                                </select>
+                                <select asp-for="Origem" class="form-select" asp-items="Html.GetEnumSelectList<PensionatoApp.Models.OrigemReserva>()"></select>
                                 <span asp-validation-for="Origem" class="text-danger"></span>
                             </div>
                             
