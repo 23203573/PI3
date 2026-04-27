@@ -78,17 +78,17 @@
                         <td>@hospede.DataCadastro.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("pt-BR"))</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a asp-action="Details" asp-route-id="@hospede.Id" class="btn btn-outline-primary btn-sm">
+                                <a asp-action="Details" asp-route-id="@hospede.Id" class="btn btn-outline-primary btn-sm" title="Visualizar" aria-label="Visualizar">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@hospede.Id" class="btn btn-outline-secondary btn-sm">
+                                <a asp-action="Edit" asp-route-id="@hospede.Id" class="btn btn-outline-secondary btn-sm" title="Editar" aria-label="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @if (hospede.Ativo)
                                 {
                                     <form asp-action="ToggleStatus" asp-route-id="@hospede.Id" method="post" class="d-inline" 
                                           onsubmit="return confirm('Tem certeza que deseja inativar este hóspede?')">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Inativar">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Inativar" aria-label="Inativar">
                                             <i class="fas fa-times-circle"></i>
                                         </button>
                                     </form>
@@ -97,7 +97,7 @@
                                 {
                                     <form asp-action="ToggleStatus" asp-route-id="@hospede.Id" method="post" class="d-inline" 
                                           onsubmit="return confirm('Tem certeza que deseja reativar este hóspede?')">
-                                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Reativar">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Reativar" aria-label="Reativar">
                                             <i class="fas fa-play-circle"></i>
                                         </button>
                                     </form>

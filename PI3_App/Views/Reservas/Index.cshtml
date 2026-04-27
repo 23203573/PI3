@@ -90,27 +90,27 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a asp-action="Details" asp-route-id="@reserva.Id" class="btn btn-outline-primary btn-sm">
+                                <a asp-action="Details" asp-route-id="@reserva.Id" class="btn btn-outline-primary btn-sm" title="Visualizar" aria-label="Visualizar">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-outline-secondary btn-sm">
+                                <a asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-outline-secondary btn-sm" title="Editar" aria-label="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a asp-action="GerarContrato" asp-route-id="@reserva.Id" class="btn btn-outline-info btn-sm" target="_blank">
+                                <a asp-action="GerarContrato" asp-route-id="@reserva.Id" class="btn btn-outline-info btn-sm" target="_blank" title="Gerar Contrato" aria-label="Gerar Contrato">
                                     <i class="fas fa-file-contract"></i>
                                 </a>
                                 @if (reserva.Status == PensionatoApp.Models.StatusReserva.Ativa)
                                 {
                                     <form asp-action="Finalizar" asp-route-id="@reserva.Id" method="post" class="d-inline" 
                                           onsubmit="return confirm('Tem certeza que deseja finalizar esta reserva?')">
-                                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Finalizar" aria-label="Finalizar">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
                                 }
                                 <form asp-action="Delete" asp-route-id="@reserva.Id" method="post" class="d-inline" 
                                       onsubmit="return confirm('Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita.')">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir" aria-label="Excluir">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
