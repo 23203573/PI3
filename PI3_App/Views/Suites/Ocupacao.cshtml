@@ -172,17 +172,28 @@
                                     </td>
                                     
                                     <td class="text-center">
-                                        @if (reserva.Origem == PensionatoApp.Models.OrigemReserva.Site)
+                                        @switch (reserva.Origem)
                                         {
-                                            <span class="badge bg-primary text-white" title="Reserva feita pelo site público">
-                                                <i class="fas fa-globe me-1"></i>Site
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary text-white" title="Reserva feita pelo dashboard administrativo">
-                                                <i class="fas fa-user-cog me-1"></i>Dashboard
-                                            </span>
+                                            case PensionatoApp.Models.OrigemReserva.Site:
+                                                <span class="badge bg-primary text-white" title="Reserva feita pelo site público">
+                                                    <i class="fas fa-globe me-1"></i>Site
+                                                </span>
+                                                break;
+                                            case PensionatoApp.Models.OrigemReserva.Telefone:
+                                                <span class="badge bg-info text-white" title="Reserva feita por telefone">
+                                                    <i class="fas fa-phone me-1"></i>Telefone
+                                                </span>
+                                                break;
+                                            case PensionatoApp.Models.OrigemReserva.Presencial:
+                                                <span class="badge bg-secondary text-white" title="Reserva feita presencialmente">
+                                                    <i class="fas fa-user me-1"></i>Presencial
+                                                </span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-dark text-white" title="Origem não informada">
+                                                    <i class="fas fa-question-circle me-1"></i>Não informada
+                                                </span>
+                                                break;
                                         }
                                     </td>
                                     
@@ -215,7 +226,8 @@
                     <small class="mt-1 d-block">
                         <i class="fas fa-source me-1"></i>
                         <span class="badge bg-primary me-1">Site</span> Reserva pública |
-                        <span class="badge bg-secondary ms-1">Dashboard</span> Reserva administrativa
+                        <span class="badge bg-info ms-1">Telefone</span> Reserva por telefone |
+                        <span class="badge bg-secondary ms-1">Presencial</span> Reserva presencial
                     </small>
                 </div>
                 <div class="col-md-6 text-md-end">
