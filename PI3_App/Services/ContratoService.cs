@@ -30,8 +30,8 @@ namespace PensionatoApp.Services
 </head>
 <body>
     <div class='header'>
-        <h2>CONTRATO DE LOCAÇÃO DE SUÍTE ESTUDANTIL</h2>
-        <p><strong>Pensionato Estudantil XYZ</strong></p>
+        <h2>CONTRATO DE LOCAÇÃO DE SUÍTE</h2>
+        <p><strong>Pensionato da Penha</strong></p>
     </div>
 
     <div class='section'>
