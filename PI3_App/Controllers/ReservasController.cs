@@ -271,11 +271,66 @@ namespace PensionatoApp.Controllers
                 return NotFound();
             }
 
+            if (reserva.DataSaida.Date <= reserva.DataEntrada.Date)
+            {
+                ModelState.AddModelError("DataSaida", "A data de saída deve ser posterior à data de entrada.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(reserva);
+                    var reservaExistente = await _context.Reservas
+                        .Include(r => r.ReservaHospedes)
+                        .FirstOrDefaultAsync(r => r.Id == id);
+
+                    if (reservaExistente == null)
+                    {
+                        return NotFound();
+                    }
+
+                    reservaExistente.SuiteId = reserva.SuiteId;
+                    reservaExistente.HospedeId = reserva.HospedeId;
+                    reservaExistente.DataEntrada = reserva.DataEntrada;
+                    reservaExistente.DataSaida = reserva.DataSaida;
+                    reservaExistente.Origem = reserva.Origem;
+                    reservaExistente.Status = reserva.Status;
+                    reservaExistente.TemGaragem = reserva.TemGaragem;
+                    reservaExistente.PrecoGaragem = reserva.PrecoGaragem;
+                    reservaExistente.TemArCondicionado = reserva.TemArCondicionado;
+                    reservaExistente.PrecoArCondicionado = reserva.PrecoArCondicionado;
+                    reservaExistente.ValorMensalTotal = reserva.ValorMensalTotal;
+                    reservaExistente.ValorAdiantado = reserva.ValorAdiantado;
+                    reservaExistente.ValorCaucao = reserva.ValorCaucao;
+                    reservaExistente.Observacoes = reserva.Observacoes;
+                    reservaExistente.DataReserva = reserva.DataReserva;
+
+                    var hospedePrincipal = reservaExistente.ReservaHospedes
+                        .FirstOrDefault(rh => rh.HospedePrincipal);
+
+                    if (hospedePrincipal != null)
+                    {
+                        hospedePrincipal.HospedeId = reserva.HospedeId;
+                    }
+                    else
+                    {
+                        _context.ReservaHospedes.Add(new ReservaHospede
+                        {
+                            ReservaId = reservaExistente.Id,
+                            HospedeId = reserva.HospedeId,
+                            HospedePrincipal = true
+                        });
+                    }
+
+                    var secundariosDuplicados = reservaExistente.ReservaHospedes
+                        .Where(rh => !rh.HospedePrincipal && rh.HospedeId == reserva.HospedeId)
+                        .ToList();
+
+                    if (secundariosDuplicados.Any())
+                    {
+                        _context.ReservaHospedes.RemoveRange(secundariosDuplicados);
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -292,7 +347,14 @@ namespace PensionatoApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["SuiteId"] = new SelectList(await _context.Suites.ToListAsync(), "Id", "Numero", reserva.SuiteId);
+            ViewData["SuiteId"] = new SelectList(
+                await _context.Suites
+                    .Select(s => new {
+                        s.Id,
+                        Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {ObterDescricaoTipoCamaReserva(s.TipoCama)}"
+                    })
+                    .ToListAsync(),
+                "Id", "Display", reserva.SuiteId);
             ViewData["HospedeId"] = new SelectList(await _context.Hospedes.ToListAsync(), "Id", "NomeCompleto", reserva.HospedeId);
             
             return View(reserva);
