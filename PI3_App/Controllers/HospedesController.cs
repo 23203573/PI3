@@ -62,6 +62,13 @@ namespace PensionatoApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NomeCompleto,EhBrasileiro,RG,CPF,TipoDocumentoEstrangeiro,NumeroDocumentoEstrangeiro,DataNascimento,Telefone,Email,Endereco,ContatoEmergenciaNome,ContatoEmergenciaTelefone,Observacoes")] Hospede hospede)
         {
+            // No cadastro de novo hóspede, aceitar qualquer formato de e-mail
+            ModelState.Remove("Email");
+            if (string.IsNullOrWhiteSpace(hospede.Email))
+            {
+                ModelState.AddModelError("Email", "O e-mail é obrigatório.");
+            }
+
             // Validação de documentos duplicados - DASHBOARD NÃO PERMITE
             var documentoDuplicado = await ValidarDocumentoDuplicado(hospede, null);
             if (!string.IsNullOrEmpty(documentoDuplicado))

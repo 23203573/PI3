@@ -21,6 +21,21 @@ namespace PensionatoApp.Controllers
             _contratoService = contratoService;
         }
 
+        private static bool PermiteDoisHospedes(TipoBed tipoCama)
+        {
+            return tipoCama == TipoBed.Casal || tipoCama == TipoBed.Beliche;
+        }
+
+        private static string ObterDescricaoTipoCamaReserva(TipoBed tipoCama)
+        {
+            return tipoCama switch
+            {
+                TipoBed.Casal => "casal (até 2 hóspedes)",
+                TipoBed.Beliche => "beliche (até 2 hóspedes)",
+                _ => "solteiro (1 hóspede)"
+            };
+        }
+
         // GET: Reservas
         public async Task<IActionResult> Index()
         {
@@ -65,22 +80,29 @@ namespace PensionatoApp.Controllers
                 .Where(s => s.Status == StatusSuite.Livre)
                 .Select(s => new {
                     s.Id,
-                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal:C} - Mobiliado com box {(s.TipoCama == TipoBed.Casal ? "casal" : "solteiro")}"
+                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {ObterDescricaoTipoCamaReserva(s.TipoCama)}"
                 })
                 .ToListAsync();
                 
             ViewData["SuiteId"] = new SelectList(suitesDisponiveis, "Id", "Display");
-            ViewData["HospedeId"] = new SelectList(
+            ViewData["HospedePrincipalId"] = new SelectList(
+                await _context.Hospedes.Where(h => h.Ativo).ToListAsync(),
+                "Id", "NomeCompleto");
+            ViewData["HospedeSecundarioId"] = new SelectList(
                 await _context.Hospedes.Where(h => h.Ativo).ToListAsync(),
                 "Id", "NomeCompleto");
             
-            var reserva = new Reserva
+            var viewModel = new CriarReservaViewModel
             {
                 DataEntrada = DateTime.Now,
-                DataSaida = DateTime.Now.AddMonths(10).AddDays(DateTime.Now.Day == 29 || DateTime.Now.Day == 30 || DateTime.Now.Day == 31 ? -DateTime.Now.Day + 11 : 11 - DateTime.Now.Day) // Até janeiro do ano seguinte
+                DataSaida = DateTime.Now.AddMonths(10).AddDays(DateTime.Now.Day == 29 || DateTime.Now.Day == 30 || DateTime.Now.Day == 31 ? -DateTime.Now.Day + 11 : 11 - DateTime.Now.Day),
+                Origem = OrigemReserva.Presencial,
+                PrecoGaragem = 120.00m,
+                PrecoArCondicionado = 150.00m,
+                ValorCaucao = 500.00m
             };
 
-            return View(reserva);
+            return View(viewModel);
         }
 
         // POST: Reservas/Create
@@ -95,9 +117,9 @@ namespace PensionatoApp.Controllers
             if (viewModel.PrecoArCondicionado == 0)
                 viewModel.PrecoArCondicionado = 150.00m;
 
-            // Validar se é suíte de casal e se tem dois hóspedes diferentes
+            // Validar se o tipo de cama permite dois hóspedes e se os hóspedes são diferentes
             var suite = await _context.Suites.FindAsync(viewModel.SuiteId);
-            if (suite != null && suite.TipoCama == TipoBed.Solteiro && viewModel.HospedeSecundarioId.HasValue)
+            if (suite != null && !PermiteDoisHospedes(suite.TipoCama) && viewModel.HospedeSecundarioId.HasValue)
             {
                 ModelState.AddModelError("HospedeSecundarioId", "Suítes de solteiro só permitem 1 hóspede.");
             }
@@ -186,7 +208,7 @@ namespace PensionatoApp.Controllers
                 .Select(s => new {
                     s.Id,
                     s.TipoCama,
-                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {(s.TipoCama == TipoBed.Casal ? "casal (até 2 hóspedes)" : "solteiro (1 hóspede)")}"
+                    Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {ObterDescricaoTipoCamaReserva(s.TipoCama)}"
                 })
                 .ToListAsync();
                 
@@ -217,7 +239,7 @@ namespace PensionatoApp.Controllers
                 await _context.Suites
                     .Select(s => new {
                         s.Id,
-                        Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {(s.TipoCama == TipoBed.Casal ? "casal" : "solteiro")}"
+                        Display = $"Suíte {s.Numero:D2}: {s.PrecoMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))} - Mobiliado com box {ObterDescricaoTipoCamaReserva(s.TipoCama)}"
                     })
                     .ToListAsync(), 
                 "Id", "Display", reserva.SuiteId);

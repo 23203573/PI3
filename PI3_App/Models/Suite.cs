@@ -6,7 +6,8 @@ namespace PensionatoApp.Models
     public enum TipoBed
     {
         Solteiro,
-        Casal
+        Casal,
+        Beliche
     }
 
     public enum StatusSuite

@@ -167,7 +167,7 @@ namespace PensionatoApp.Data
             _context.Reservas.AddRange(reservas);
             await _context.SaveChangesAsync();
 
-            // Criar relacionamentos ReservaHospede (para suítes de casal com 2 pessoas)
+            // Criar relacionamentos ReservaHospede (para suítes que permitem 2 pessoas)
             await CriarRelacionamentosReservaHospede(reservas, hospedes, suites);
 
             Console.WriteLine($"Criadas {reservas.Count} reservas");
@@ -189,8 +189,8 @@ namespace PensionatoApp.Data
                     HospedePrincipal = true
                 });
 
-                // Para suítes de casal, 50% terão segundo hóspede
-                if (suite.TipoCama == TipoBed.Casal && _random.Next(0, 2) == 0)
+                // Para suítes de casal ou beliche, 50% terão segundo hóspede
+                if ((suite.TipoCama == TipoBed.Casal || suite.TipoCama == TipoBed.Beliche) && _random.Next(0, 2) == 0)
                 {
                     var hospedeSecundario = hospedes
                         .Where(h => h.Id != reserva.HospedeId)

@@ -1,200 +1,519 @@
+@using System.Globalization
+@using System.Text.Json
 @model PensionatoApp.Controllers.HomeController.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard Administrativo";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var receitaLabels = Model.ReceitaUltimosMeses.Select(item => item.Rotulo).ToList();
+    var receitaValores = Model.ReceitaUltimosMeses.Select(item => item.Valor).ToList();
+    var origemLabels = Model.DistribuicaoOrigemReservas.Select(item => item.Rotulo).ToList();
+    var origemValores = Model.DistribuicaoOrigemReservas.Select(item => item.Valor).ToList();
+    var tipoLabels = Model.OcupacaoPorTipoSuite.Select(item => item.Tipo).ToList();
+    var tipoOcupadas = Model.OcupacaoPorTipoSuite.Select(item => item.Ocupadas).ToList();
+    var tipoLivres = Model.OcupacaoPorTipoSuite.Select(item => item.Livres).ToList();
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <h1 class="display-4 mb-4">
-            <i class="fas fa-tachometer-alt text-primary"></i>
-            Dashboard
-        </h1>
+<style>
+    .dashboard-hero {
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(255, 193, 7, 0.12));
+        border: 1px solid rgba(13, 110, 253, 0.08);
+        border-radius: 20px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+    }
+
+    .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+    }
+
+    .analytics-card {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        height: 100%;
+    }
+
+    .analytics-card .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        padding-bottom: 0.9rem;
+    }
+
+    .insight-list .list-group-item {
+        border-left: 0;
+        border-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .ranking-bar {
+        height: 10px;
+        border-radius: 999px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+
+    .ranking-bar span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #0d6efd, #20c997);
+    }
+</style>
+
+<div class="dashboard-hero">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <div>
+            <h1 class="display-6 mb-2">
+                <i class="fas fa-chart-line text-primary me-2"></i>Dashboard Analítico
+            </h1>
+            <p class="text-muted mb-0">Visão executiva do pensionato com ocupação, receita, origem das reservas e alertas operacionais.</p>
+        </div>
+        <div class="text-lg-end">
+            <div class="small text-muted">Atualizado em tempo real</div>
+            <div class="fw-semibold">@DateTime.Now.ToString("dd/MM/yyyy 'às' HH:mm")</div>
+        </div>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
-            <div class="card border-primary h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-bed fa-2x text-primary mb-2"></i>
-                    <h5 class="card-title">Total de Suítes</h5>
-                    <h3 class="text-primary">@Model.TotalSuites</h3>
+<div class="row g-3 mb-3">
+    <div class="col-md-6 col-xl-3">
+        <a href="@Url.Action("Index", "Suites")" class="text-decoration-none text-dark">
+            <div class="card metric-card h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Total de suítes</div>
+                        <div class="display-6 fw-bold">@Model.TotalSuites</div>
+                    </div>
+                    <div class="metric-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fas fa-bed"></i>
+                    </div>
                 </div>
             </div>
         </a>
     </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Suites")" class="text-decoration-none">
-            <div class="card border-success h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                    <h5 class="card-title">Suítes Ocupadas</h5>
-                    <h3 class="text-success">@Model.SuitesOcupadas</h3>
+    <div class="col-md-6 col-xl-3">
+        <a href="@Url.Action("Ocupacao", "Suites")" class="text-decoration-none text-dark">
+            <div class="card metric-card h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Taxa de ocupação</div>
+                        <div class="display-6 fw-bold">@Model.TaxaOcupacaoAtual.ToString("0.#")%</div>
+                        <div class="small text-success">@Model.SuitesOcupadas ocupadas agora</div>
+                    </div>
+                    <div class="metric-icon bg-success bg-opacity-10 text-success">
+                        <i class="fas fa-door-closed"></i>
+                    </div>
                 </div>
             </div>
         </a>
     </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("SuitesLivres", "Suites")" class="text-decoration-none">
-            <div class="card border-info h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-door-open fa-2x text-info mb-2"></i>
-                    <h5 class="card-title">Suítes Livres</h5>
-                    <h3 class="text-info">@Model.SuitesLivres</h3>
+    <div class="col-md-6 col-xl-3">
+        <a href="@Url.Action("Relatorio", "Pagamentos")" class="text-decoration-none text-dark">
+            <div class="card metric-card h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Receita mensal</div>
+                        <div class="h3 fw-bold mb-1">@Model.ReceitaMensal.ToString("C", new CultureInfo("pt-BR"))</div>
+                        <div class="small text-muted">Projetado ativo: @Model.ReceitaProjetadaAtiva.ToString("C", new CultureInfo("pt-BR"))</div>
+                    </div>
+                    <div class="metric-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="fas fa-sack-dollar"></i>
+                    </div>
                 </div>
             </div>
         </a>
     </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Hospedes")" class="text-decoration-none">
-            <div class="card border-warning h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-users fa-2x text-warning mb-2"></i>
-                    <h5 class="card-title">Hóspedes Atuais</h5>
-                    <h3 class="text-warning">@Model.TotalHospedes</h3>
-                </div>
-            </div>
-        </a>
-    </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Reservas")" class="text-decoration-none">
-            <div class="card border-secondary h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-calendar-check fa-2x text-secondary mb-2"></i>
-                    <h5 class="card-title">Reservas Ativas</h5>
-                    <h3 class="text-secondary">@Model.ReservasAtivas</h3>
-                </div>
-            </div>
-        </a>
-    </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Pagamentos")" class="text-decoration-none">
-            <div class="card border-danger h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-money-check-alt fa-2x text-danger mb-2"></i>
-                    <h5 class="card-title">Pagamentos</h5>
-                    <h3 class="text-danger">@Model.PagamentosPendentes</h3>
-                </div>
-            </div>
-        </a>
-    </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("Relatorio", "Pagamentos")" class="text-decoration-none">
-            <div class="card border-success h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
-                    <h5 class="card-title">Receita Mensal</h5>
-                    <h3 class="text-success">@Model.ReceitaMensal.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</h3>
-                </div>
-            </div>
-        </a>
-    </div>
-    
-    <div class="col-md-3">
-        <a href="@Url.Action("Index", "Notificacoes")" class="text-decoration-none">
-            <div class="card border-@(Model.NotificacoesPendentes > 0 ? "warning" : "info") h-100">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-bell fa-2x text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info") mb-2"></i>
-                    <h5 class="card-title">Notificações</h5>
-                    <h3 class="text-@(Model.NotificacoesPendentes > 0 ? "warning" : "info")">@Model.NotificacoesPendentes</h3>
-                    @if (Model.NotificacoesPendentes > 0)
-                    {
-                        <small class="text-warning">Requer atenção</small>
-                    }
-                    else
-                    {
-                        <small class="text-info">Tudo em ordem</small>
-                    }
+    <div class="col-md-6 col-xl-3">
+        <a href="@Url.Action("Index", "Pagamentos")" class="text-decoration-none text-dark">
+            <div class="card metric-card h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Em aberto</div>
+                        <div class="h3 fw-bold mb-1">@Model.ValorEmAberto.ToString("C", new CultureInfo("pt-BR"))</div>
+                        <div class="small text-danger">@Model.PagamentosPendentes pagamento(s) pendente(s)</div>
+                    </div>
+                    <div class="metric-icon bg-danger bg-opacity-10 text-danger">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
                 </div>
             </div>
         </a>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase mb-1">Hóspedes atuais</div>
+                <div class="display-6 fw-bold text-warning">@Model.TotalHospedes</div>
+                <div class="small text-muted">Base ativa na data de hoje</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase mb-1">Reservas ativas</div>
+                <div class="display-6 fw-bold text-secondary">@Model.ReservasAtivas</div>
+                <div class="small text-muted">Reservas em andamento</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase mb-1">Ticket médio ativo</div>
+                <div class="h3 fw-bold text-info">@Model.TicketMedioAtivo.ToString("C", new CultureInfo("pt-BR"))</div>
+                <div class="small text-muted">Média por reserva ativa</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <a href="@Url.Action("Index", "Notificacoes")" class="text-decoration-none text-dark">
+            <div class="card metric-card h-100">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase mb-1">Alertas pendentes</div>
+                    <div class="display-6 fw-bold @(Model.NotificacoesPendentes > 0 ? "text-warning" : "text-success")">@Model.NotificacoesPendentes</div>
+                    <div class="small text-muted">@((Model.NotificacoesPendentes > 0) ? "Itens que pedem atenção" : "Sem pendências críticas")</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-7">
+        <div class="card analytics-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1"><i class="fas fa-chart-column text-primary me-2"></i>Receita dos últimos 6 meses</h5>
+                    <small class="text-muted">Leitura rápida da evolução financeira mensal.</small>
+                </div>
+            </div>
+            <div class="card-body" style="height: 320px;">
+                <canvas id="receitaChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card analytics-card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-pie"></i> Taxa de Ocupação</h5>
+                <h5 class="mb-1"><i class="fas fa-globe text-primary me-2"></i>Origem das reservas</h5>
+                <small class="text-muted">Mostra o peso do site versus canais internos.</small>
+            </div>
+            <div class="card-body" style="height: 320px;">
+                <canvas id="origemChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-5">
+        <div class="card analytics-card h-100">
+            <div class="card-header">
+                <h5 class="mb-1"><i class="fas fa-bed-pulse text-primary me-2"></i>Ocupação por tipo de suíte</h5>
+                <small class="text-muted">Comparativo entre suítes de casal, beliche e solteiro.</small>
+            </div>
+            <div class="card-body" style="height: 300px;">
+                <canvas id="tipoSuiteChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card analytics-card h-100">
+            <div class="card-header">
+                <h5 class="mb-1"><i class="fas fa-calendar-day text-primary me-2"></i>Ocupação por data</h5>
+                <small class="text-muted">Simule qualquer data para ver a taxa de ocupação.</small>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label">Selecionar Data:</label>
+                    <label class="form-label">Selecionar data</label>
                     <input type="date" id="dataSelecionada" class="form-control" value="@Model.DataSelecionada.ToString("yyyy-MM-dd")" />
                 </div>
-                
-                <div id="ocupacaoContainer">
-                    <div class="progress mb-3" style="height: 25px;">
-                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: @Model.TaxaOcupacaoData%; background-color: var(--cor-dourado);">
-                            <span id="porcentagemTexto">@Model.TaxaOcupacaoData%</span>
-                        </div>
+                <div class="progress mb-3" style="height: 26px;">
+                    <div id="progressBar" class="progress-bar fw-semibold" role="progressbar" style="width: @Model.TaxaOcupacaoData%; background: linear-gradient(90deg, #0d6efd, #20c997);">
+                        <span id="porcentagemTexto">@Model.TaxaOcupacaoData%</span>
                     </div>
-                    <p id="ocupacaoTexto" class="text-muted">@Model.SuitesOcupadasData de @Model.TotalSuites suítes ocupadas em @Model.DataSelecionada.ToString("dd/MM/yyyy")</p>
+                </div>
+                <p id="ocupacaoTexto" class="text-muted mb-3">@Model.SuitesOcupadasData de @Model.TotalSuites suítes ocupadas em @Model.DataSelecionada.ToString("dd/MM/yyyy")</p>
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Create", "Reservas")" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Nova Reserva
+                    </a>
+                    <a href="@Url.Action("Create", "Hospedes")" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-1"></i>Novo Hóspede
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-6">
-        <div class="card">
+    <div class="col-xl-3">
+        <div class="card analytics-card h-100">
             <div class="card-header">
-                <h5><i class="fas fa-tools"></i> Ações Rápidas</h5>
+                <h5 class="mb-1"><i class="fas fa-lightbulb text-primary me-2"></i>Leituras rápidas</h5>
+                <small class="text-muted">Insights úteis para decisão diária.</small>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="@Url.Action("Create", "Reservas")" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Nova Reserva
-                    </a>
-                    <a href="@Url.Action("Create", "Hospedes")" class="btn btn-info">
-                        <i class="fas fa-user-plus"></i> Novo Hóspede
-                    </a>
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase">Ponto forte</div>
+                    <div class="fw-semibold">@((Model.TopSuitesMaisReservadas.FirstOrDefault()?.Suite) ?? "Sem histórico suficiente")</div>
+                </div>
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase">Próximo checkout</div>
+                    <div class="fw-semibold">
+                        @if (Model.ProximosCheckouts.Any())
+                        {
+                            @($"{Model.ProximosCheckouts.First().Hospede} - {Model.ProximosCheckouts.First().DataSaida:dd/MM}")
+                        }
+                        else
+                        {
+                            @:Nenhum checkout próximo
+                        }
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase">Canal dominante</div>
+                    <div class="fw-semibold">@((Model.DistribuicaoOrigemReservas.OrderByDescending(x => x.Valor).FirstOrDefault()?.Rotulo) ?? "Sem dados")</div>
+                </div>
+                <div>
+                    <div class="small text-muted text-uppercase">Disponibilidade</div>
+                    <div class="fw-semibold">@Model.SuitesLivres suíte(s) livre(s) hoje</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="row g-3">
+    <div class="col-xl-6">
+        <div class="card analytics-card h-100">
+            <div class="card-header">
+                <h5 class="mb-1"><i class="fas fa-arrow-right-from-bracket text-primary me-2"></i>Próximos checkouts</h5>
+                <small class="text-muted">Ajuda a antecipar limpeza, manutenção e novas entradas.</small>
+            </div>
+            <div class="card-body">
+                @if (Model.ProximosCheckouts.Any())
+                {
+                    <div class="list-group list-group-flush insight-list">
+                        @foreach (var item in Model.ProximosCheckouts)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">@item.Hospede</div>
+                                    <small class="text-muted">Suíte @item.Suite • Origem: @item.Origem</small>
+                                </div>
+                                <span class="badge bg-light text-dark border">@item.DataSaida.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Nenhum checkout previsto no momento.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card analytics-card h-100">
+            <div class="card-header">
+                <h5 class="mb-1"><i class="fas fa-ranking-star text-primary me-2"></i>Suítes com maior giro</h5>
+                <small class="text-muted">Ranking por quantidade de reservas, com apoio visual de receita.</small>
+            </div>
+            <div class="card-body">
+                @if (Model.TopSuitesMaisReservadas.Any())
+                {
+                    var maxReservas = Model.TopSuitesMaisReservadas.Max(x => x.QuantidadeReservas);
+                    <div class="list-group list-group-flush insight-list">
+                        @foreach (var item in Model.TopSuitesMaisReservadas)
+                        {
+                            var percentual = maxReservas > 0 ? (item.QuantidadeReservas * 100 / maxReservas) : 0;
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold">@item.Suite</span>
+                                    <span class="text-muted">@item.QuantidadeReservas reserva(s)</span>
+                                </div>
+                                <div class="ranking-bar mb-2">
+                                    <span style="width: @percentual%"></span>
+                                </div>
+                                <small class="text-muted">Receita acumulada: @item.ReceitaAcumulada.ToString("C", new CultureInfo("pt-BR"))</small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Ainda não há reservas suficientes para formar o ranking.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const dataSelecionada = document.getElementById('dataSelecionada');
-    const progressBar = document.getElementById('progressBar');
-    const porcentagemTexto = document.getElementById('porcentagemTexto');
-    const ocupacaoTexto = document.getElementById('ocupacaoTexto');
-    
-    dataSelecionada.addEventListener('change', function() {
-        const dataEscolhida = this.value;
-        
-        if (dataEscolhida) {
-            // Mostrar loading
-            progressBar.style.width = '0%';
-            porcentagemTexto.textContent = 'Carregando...';
-            ocupacaoTexto.textContent = 'Carregando dados de ocupação...';
-            
-            // Fazer requisição AJAX
+    document.addEventListener('DOMContentLoaded', function () {
+        const receitaLabels = @Html.Raw(JsonSerializer.Serialize(receitaLabels));
+        const receitaValores = @Html.Raw(JsonSerializer.Serialize(receitaValores));
+        const origemLabels = @Html.Raw(JsonSerializer.Serialize(origemLabels));
+        const origemValores = @Html.Raw(JsonSerializer.Serialize(origemValores));
+        const tipoLabels = @Html.Raw(JsonSerializer.Serialize(tipoLabels));
+        const tipoOcupadas = @Html.Raw(JsonSerializer.Serialize(tipoOcupadas));
+        const tipoLivres = @Html.Raw(JsonSerializer.Serialize(tipoLivres));
+
+        const moneyFormatter = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+
+        new Chart(document.getElementById('receitaChart'), {
+            type: 'bar',
+            data: {
+                labels: receitaLabels,
+                datasets: [{
+                    label: 'Receita',
+                    data: receitaValores,
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderRadius: 10,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return moneyFormatter.format(context.raw || 0);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return moneyFormatter.format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('origemChart'), {
+            type: 'doughnut',
+            data: {
+                labels: origemLabels,
+                datasets: [{
+                    data: origemValores,
+                    backgroundColor: ['#0d6efd', '#ffc107', '#20c997'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        new Chart(document.getElementById('tipoSuiteChart'), {
+            type: 'bar',
+            data: {
+                labels: tipoLabels,
+                datasets: [
+                    {
+                        label: 'Ocupadas',
+                        data: tipoOcupadas,
+                        backgroundColor: '#198754',
+                        borderRadius: 8
+                    },
+                    {
+                        label: 'Livres',
+                        data: tipoLivres,
+                        backgroundColor: '#dee2e6',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        const dataSelecionada = document.getElementById('dataSelecionada');
+        const progressBar = document.getElementById('progressBar');
+        const porcentagemTexto = document.getElementById('porcentagemTexto');
+        const ocupacaoTexto = document.getElementById('ocupacaoTexto');
+
+        dataSelecionada.addEventListener('change', function () {
+            const dataEscolhida = this.value;
+            if (!dataEscolhida) {
+                return;
+            }
+
+            progressBar.style.width = '10%';
+            porcentagemTexto.textContent = '...';
+            ocupacaoTexto.textContent = 'Buscando ocupação da data selecionada...';
+
             fetch(`@Url.Action("ObterOcupacaoPorData", "Home")?data=${dataEscolhida}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Atualizar a interface
                     progressBar.style.width = data.taxaOcupacao + '%';
                     porcentagemTexto.textContent = data.taxaOcupacao + '%';
                     ocupacaoTexto.textContent = `${data.suitesOcupadas} de ${data.totalSuites} suítes ocupadas em ${data.data}`;
                 })
-                .catch(error => {
-                    console.error('Erro ao buscar dados de ocupação:', error);
+                .catch(() => {
+                    progressBar.style.width = '100%';
                     porcentagemTexto.textContent = 'Erro';
-                    ocupacaoTexto.textContent = 'Erro ao carregar dados de ocupação';
+                    ocupacaoTexto.textContent = 'Não foi possível carregar a ocupação dessa data.';
                 });
-        }
+        });
     });
-});
 </script>

@@ -28,10 +28,10 @@
                     <div class="mb-3">
                         <label asp-for="HospedeSecundarioId" class="form-label">Hóspede Secundário</label>
                         <select asp-for="HospedeSecundarioId" class="form-select" asp-items="ViewBag.HospedeSecundarioId">
-                            <option value="">Nenhum (apenas para suítes de casal)</option>
+                            <option value="">Nenhum (apenas para suítes de casal ou beliche)</option>
                         </select>
                         <span asp-validation-for="HospedeSecundarioId" class="text-danger"></span>
-                        <div class="form-text">Disponível apenas para suítes com cama de casal</div>
+                        <div class="form-text">Disponível para suítes com cama de casal ou beliche</div>
                     </div>
                 </div>
             </div>
@@ -184,15 +184,15 @@
             function toggleHospedeSecundario() {
                 var suiteText = $('#suiteSelect option:selected').text().toLowerCase();
                 var hospedeSecundarioSelect = $('#HospedeSecundarioId');
-                var isDoubleBed = suiteText.includes('casal');
+                var permiteDoisHospedes = suiteText.includes('casal') || suiteText.includes('beliche') || suiteText.includes('até 2 hóspedes');
                 
-                if (isDoubleBed) {
+                if (permiteDoisHospedes) {
                     hospedeSecundarioSelect.prop('disabled', false);
-                    hospedeSecundarioSelect.parent().find('.form-text').text('Disponível para suítes com cama de casal');
+                    hospedeSecundarioSelect.parent().find('.form-text').text('Disponível para suítes com cama de casal ou beliche');
                 } else {
                     hospedeSecundarioSelect.prop('disabled', true);
                     hospedeSecundarioSelect.val('');
-                    hospedeSecundarioSelect.parent().find('.form-text').text('Apenas suítes com cama de casal permitem 2 hóspedes');
+                    hospedeSecundarioSelect.parent().find('.form-text').text('Apenas suítes com cama de casal ou beliche permitem 2 hóspedes');
                 }
             }
             
