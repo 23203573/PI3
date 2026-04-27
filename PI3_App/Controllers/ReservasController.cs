@@ -117,6 +117,17 @@ namespace PensionatoApp.Controllers
             if (viewModel.PrecoArCondicionado == 0)
                 viewModel.PrecoArCondicionado = 150.00m;
 
+            // Validar período da reserva
+            if (viewModel.DataSaida.Date <= viewModel.DataEntrada.Date)
+            {
+                ModelState.AddModelError("DataSaida", "A data de saída deve ser posterior à data de entrada.");
+            }
+
+            if (viewModel.DataEntrada.Date < DateTime.Today)
+            {
+                ModelState.AddModelError("DataEntrada", "A data de entrada não pode ser anterior à data atual.");
+            }
+
             // Validar se o tipo de cama permite dois hóspedes e se os hóspedes são diferentes
             var suite = await _context.Suites.FindAsync(viewModel.SuiteId);
             if (suite != null && !PermiteDoisHospedes(suite.TipoCama) && viewModel.HospedeSecundarioId.HasValue)

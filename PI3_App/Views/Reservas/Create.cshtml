@@ -52,14 +52,14 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="DataEntrada" class="form-label">Data de Entrada *</label>
-                        <input asp-for="DataEntrada" type="text" class="form-control data-input" placeholder="dd/mm/aaaa" />
+                        <input asp-for="DataEntrada" type="date" class="form-control" id="dataEntrada" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                         <span asp-validation-for="DataEntrada" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label asp-for="DataSaida" class="form-label">Data de Saída *</label>
-                        <input asp-for="DataSaida" type="text" class="form-control data-input" placeholder="dd/mm/aaaa" />
+                        <input asp-for="DataSaida" type="date" class="form-control" id="dataSaida" />
                         <span asp-validation-for="DataSaida" class="text-danger"></span>
                         <small class="form-text text-muted">Padrão: Janeiro do ano seguinte</small>
                     </div>
@@ -198,6 +198,26 @@
             
             // Executar na inicialização
             toggleHospedeSecundario();
+
+            // Regras de calendário para datas
+            function validarDatas() {
+                const dataEntrada = $('#dataEntrada').val();
+                const dataSaida = $('#dataSaida').val();
+
+                if (dataEntrada) {
+                    $('#dataSaida').attr('min', dataEntrada);
+                }
+
+                if (dataEntrada && dataSaida && dataSaida <= dataEntrada) {
+                    $('#dataSaida')[0].setCustomValidity('A data de saída deve ser posterior à data de entrada.');
+                } else {
+                    $('#dataSaida')[0].setCustomValidity('');
+                }
+            }
+
+            validarDatas();
+            $('#dataEntrada').on('change', validarDatas);
+            $('#dataSaida').on('change', validarDatas);
             
             // Executar quando a suíte for alterada
             $('#suiteSelect').on('change', toggleHospedeSecundario);
