@@ -68,6 +68,11 @@
             <tbody>
                 @foreach (var pagamento in Model)
                 {
+                    var hoje = DateTime.Today;
+                    var inicioMesAtual = new DateTime(hoje.Year, hoje.Month, 1);
+                    var inicioProximoMes = inicioMesAtual.AddMonths(1);
+                    var isFuturo = pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente &&
+                                   pagamento.DataVencimento.Date >= inicioProximoMes;
                     var isAtrasado = pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente && 
                                      pagamento.DataVencimento < DateTime.Now;
                     
@@ -95,9 +100,16 @@
                             @switch (pagamento.Status)
                             {
                                 case PensionatoApp.Models.StatusPagamento.Pendente:
-                                    <span class="badge @(isAtrasado ? "bg-danger" : "bg-warning")">
-                                        @(isAtrasado ? "Atrasado" : "Pendente")
-                                    </span>
+                                    if (isFuturo)
+                                    {
+                                        <span class="badge bg-info">Futuro</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge @(isAtrasado ? "bg-danger" : "bg-warning")">
+                                            @(isAtrasado ? "Atrasado" : "Pendente")
+                                        </span>
+                                    }
                                     break;
                                 case PensionatoApp.Models.StatusPagamento.Pago:
                                     <span class="badge bg-success">Pago</span>
