@@ -110,20 +110,20 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a asp-action="Details" asp-route-id="@pagamento.Id" class="btn btn-outline-primary btn-sm">
+                                <a asp-action="Details" asp-route-id="@pagamento.Id" class="btn btn-outline-primary btn-sm" title="Visualizar" aria-label="Visualizar">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
                                 @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente)
                                 {
-                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#pagamentoModal-@pagamento.Id">
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#pagamentoModal-@pagamento.Id" title="Registrar Pagamento" aria-label="Registrar Pagamento">
                                         <i class="fas fa-money-bill"></i>
                                     </button>
                                 }
                                 
                                 @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pago)
                                 {
-                                    <a asp-action="GerarRecibo" asp-route-id="@pagamento.Id" class="btn btn-outline-info btn-sm" target="_blank">
+                                    <a asp-action="GerarRecibo" asp-route-id="@pagamento.Id" class="btn btn-outline-info btn-sm" target="_blank" title="Gerar Recibo" aria-label="Gerar Recibo">
                                         <i class="fas fa-receipt"></i>
                                     </a>
                                 }
