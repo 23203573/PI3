@@ -71,8 +71,7 @@
                         <select asp-for="Status" class="form-select" id="statusSelect">
                             <option value="@PensionatoApp.Models.StatusPagamento.Pendente">Pendente</option>
                             <option value="@PensionatoApp.Models.StatusPagamento.Pago">Pago</option>
-                            <option value="@PensionatoApp.Models.StatusPagamento.Parcelado">Parcelado</option>
-                            <option value="@PensionatoApp.Models.StatusPagamento.Atrasado">Atrasado</option>
+                            <option value="@PensionatoApp.Models.StatusPagamento.Futuro">Futuro</option>
                         </select>
                         <span asp-validation-for="Status" class="text-danger"></span>
                     </div>

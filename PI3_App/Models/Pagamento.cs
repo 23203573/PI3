@@ -16,7 +16,8 @@ namespace PensionatoApp.Models
         Pendente,
         Pago,
         Parcelado,
-        Atrasado
+        Atrasado,
+        Futuro
     }
 
     public class Pagamento
