@@ -33,7 +33,9 @@ namespace PensionatoApp.Controllers
                             r.DataEntrada <= hoje &&
                             r.DataSaida > hoje);
             var pagamentosEmAbertoQuery = _context.Pagamentos
-                .Where(p => p.Status == StatusPagamento.Pendente || p.Status == StatusPagamento.Atrasado);
+                .Where(p => (p.Status == StatusPagamento.Pendente || p.Status == StatusPagamento.Atrasado)
+                         && p.DataVencimento.Month == hoje.Month
+                         && p.DataVencimento.Year == hoje.Year);
             var receitasUltimosMeses = await ObterReceitaUltimosMesesAsync(6);
             var origensReserva = await ObterDistribuicaoOrigemAsync();
             var ocupacaoPorTipo = await ObterOcupacaoPorTipoSuiteAsync(hoje);
