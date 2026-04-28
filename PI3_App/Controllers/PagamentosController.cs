@@ -69,6 +69,94 @@ namespace PensionatoApp.Controllers
             return View(pagamento);
         }
 
+        // GET: Pagamentos/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var pagamento = await _context.Pagamentos
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r.Suite)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r.Hospede)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (pagamento == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new EditPagamentoViewModel
+            {
+                Id = pagamento.Id,
+                ReservaDescricao = $"{pagamento.Reserva.Hospede.NomeCompleto} - Suíte {pagamento.Reserva.Suite.Numero}",
+                DataVencimento = pagamento.DataVencimento,
+                Valor = pagamento.Valor,
+                Descricao = pagamento.Descricao,
+                Status = pagamento.Status,
+                DataPagamento = pagamento.DataPagamento,
+                ValorPago = pagamento.ValorPago,
+                FormaPagamento = pagamento.FormaPagamento,
+                Observacoes = pagamento.Observacoes
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Pagamentos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, EditPagamentoViewModel viewModel)
+        {
+            if (id != viewModel.Id)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+
+            var pagamento = await _context.Pagamentos
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r.Suite)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r.Hospede)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (pagamento == null)
+            {
+                return NotFound();
+            }
+
+            pagamento.Status = viewModel.Status;
+            pagamento.Observacoes = viewModel.Observacoes;
+
+            if (viewModel.Status == StatusPagamento.Pago)
+            {
+                pagamento.DataPagamento = viewModel.DataPagamento ?? DateTime.Now;
+                pagamento.ValorPago = (viewModel.ValorPago.HasValue && viewModel.ValorPago.Value > 0)
+                    ? viewModel.ValorPago.Value
+                    : pagamento.Valor;
+                pagamento.FormaPagamento = viewModel.FormaPagamento;
+            }
+            else
+            {
+                pagamento.DataPagamento = null;
+                pagamento.ValorPago = null;
+                pagamento.FormaPagamento = null;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Sucesso"] = "Pagamento atualizado com sucesso!";
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // POST: Pagamentos/RegistrarPagamento/5
         [HttpPost]
         public async Task<IActionResult> RegistrarPagamento(int id, decimal valorPago, FormaPagamento formaPagamento, string? observacoes)
@@ -283,6 +371,20 @@ namespace PensionatoApp.Controllers
 
             [Display(Name = "Observações")]
             [StringLength(500, ErrorMessage = "As observações não podem ter mais de 500 caracteres")]
+            public string? Observacoes { get; set; }
+        }
+
+        public class EditPagamentoViewModel
+        {
+            public int Id { get; set; }
+            public string ReservaDescricao { get; set; } = "";
+            public DateTime DataVencimento { get; set; }
+            public decimal Valor { get; set; }
+            public string Descricao { get; set; } = "";
+            public StatusPagamento Status { get; set; }
+            public DateTime? DataPagamento { get; set; }
+            public decimal? ValorPago { get; set; }
+            public FormaPagamento? FormaPagamento { get; set; }
             public string? Observacoes { get; set; }
         }
 

@@ -1,0 +1,154 @@
+@model PensionatoApp.Controllers.PagamentosController.EditPagamentoViewModel
+
+@{
+    ViewData["Title"] = "Editar Pagamento";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Gerenciar Pagamentos</a></li>
+                <li class="breadcrumb-item active">Editar Pagamento #@Model.Id</li>
+            </ol>
+        </nav>
+        <h2 class="text-primary mb-0">
+            <i class="fas fa-edit me-2"></i>Editar Pagamento #@Model.Id
+        </h2>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+    </a>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-money-check-alt me-2"></i>Dados do Pagamento</h5>
+            </div>
+            <div class="card-body">
+
+                <!-- Resumo somente leitura -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Hóspede / Suíte</label>
+                        <p class="fw-semibold">@Model.ReservaDescricao</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">Vencimento</label>
+                        <p class="fw-semibold">@Model.DataVencimento.ToString("dd/MM/yyyy")</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">Valor</label>
+                        <p class="fw-semibold text-success">@Model.Valor.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ReservaDescricao" />
+                    <input type="hidden" asp-for="DataVencimento" />
+                    <input type="hidden" asp-for="Valor" />
+                    <input type="hidden" asp-for="Descricao" />
+
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label fw-semibold">
+                            <i class="fas fa-tag me-1"></i>Status do Pagamento
+                        </label>
+                        <select asp-for="Status" class="form-select" id="statusSelect">
+                            <option value="@PensionatoApp.Models.StatusPagamento.Pendente">Pendente</option>
+                            <option value="@PensionatoApp.Models.StatusPagamento.Pago">Pago</option>
+                            <option value="@PensionatoApp.Models.StatusPagamento.Parcelado">Parcelado</option>
+                            <option value="@PensionatoApp.Models.StatusPagamento.Atrasado">Atrasado</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <!-- Campos extras visíveis apenas quando Status = Pago -->
+                    <div id="camposPago" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DataPagamento" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-check me-1"></i>Data do Pagamento
+                                </label>
+                                <input asp-for="DataPagamento" type="date" class="form-control"
+                                       value="@(Model.DataPagamento.HasValue ? Model.DataPagamento.Value.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd"))" />
+                                <span asp-validation-for="DataPagamento" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ValorPago" class="form-label fw-semibold">
+                                    <i class="fas fa-dollar-sign me-1"></i>Valor Pago
+                                </label>
+                                <input asp-for="ValorPago" type="number" step="0.01" class="form-control"
+                                       placeholder="@Model.Valor.ToString("F2")" />
+                                <span asp-validation-for="ValorPago" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="FormaPagamento" class="form-label fw-semibold">
+                                <i class="fas fa-credit-card me-1"></i>Forma de Pagamento
+                            </label>
+                            <select asp-for="FormaPagamento" class="form-select">
+                                <option value="">Selecione...</option>
+                                <option value="@PensionatoApp.Models.FormaPagamento.Dinheiro">Dinheiro</option>
+                                <option value="@PensionatoApp.Models.FormaPagamento.Pix">Pix</option>
+                                <option value="@PensionatoApp.Models.FormaPagamento.Cheque">Cheque</option>
+                                <option value="@PensionatoApp.Models.FormaPagamento.TransferenciaBancaria">Transferência Bancária</option>
+                            </select>
+                            <span asp-validation-for="FormaPagamento" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="mb-4">
+                        <label asp-for="Observacoes" class="form-label fw-semibold">
+                            <i class="fas fa-sticky-note me-1"></i>Observações
+                        </label>
+                        <textarea asp-for="Observacoes" class="form-control" rows="3"
+                                  placeholder="Observações adicionais (opcional)"></textarea>
+                        <span asp-validation-for="Observacoes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const statusSelect = document.getElementById('statusSelect');
+        const camposPago = document.getElementById('camposPago');
+
+        function toggleCamposPago() {
+            camposPago.style.display = statusSelect.value === 'Pago' ? 'block' : 'none';
+        }
+
+        statusSelect.addEventListener('change', toggleCamposPago);
+
+        // Inicializar ao carregar
+        toggleCamposPago();
+    </script>
+}
