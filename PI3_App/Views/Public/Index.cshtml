@@ -4,6 +4,14 @@
 }
 
 <div class="container">
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Erro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Título centralizado do pensionato -->
     <div class="text-center" style="margin: 2rem 0 3rem 0;">
         <div class="d-flex justify-content-center align-items-center mb-3">

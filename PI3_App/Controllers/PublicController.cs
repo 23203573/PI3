@@ -52,7 +52,8 @@ namespace PensionatoApp.Controllers
             }
 
             var suitesDisponiveis = await _context.Suites
-                .Where(s => !s.Reservas.Any(r => r.Status == StatusReserva.Ativa &&
+                .Where(s => s.Status != StatusSuite.EmManutencao &&
+                           !s.Reservas.Any(r => r.Status == StatusReserva.Ativa &&
                                                ((r.DataEntrada <= dataFimDate && r.DataSaida >= dataInicioDate))))
                 .OrderBy(s => s.Numero)
                 .ToListAsync();
@@ -107,6 +108,31 @@ namespace PensionatoApp.Controllers
                 {
                     dataSaidaDate = parsedSaidaISO;
                 }
+            }
+
+            if (suite.Status == StatusSuite.EmManutencao)
+            {
+                TempData["Erro"] = "Esta suíte está em manutenção e não está disponível para reserva no momento.";
+                return RedirectToAction(nameof(Index), new
+                {
+                    dataInicio = dataEntradaDate.ToString("yyyy-MM-dd"),
+                    dataFim = dataSaidaDate.ToString("yyyy-MM-dd")
+                });
+            }
+
+            var conflitoPeriodo = await _context.Reservas
+                .AnyAsync(r => r.SuiteId == suite.Id &&
+                              r.Status == StatusReserva.Ativa &&
+                              (r.DataEntrada <= dataSaidaDate && r.DataSaida >= dataEntradaDate));
+
+            if (conflitoPeriodo)
+            {
+                TempData["Erro"] = "Esta suíte já está reservada total ou parcialmente para o período selecionado.";
+                return RedirectToAction(nameof(Index), new
+                {
+                    dataInicio = dataEntradaDate.ToString("yyyy-MM-dd"),
+                    dataFim = dataSaidaDate.ToString("yyyy-MM-dd")
+                });
             }
 
             var reserva = new ReservaPublicaViewModel
@@ -216,6 +242,20 @@ namespace PensionatoApp.Controllers
                     return View(model);
                 }
 
+                var suiteDisponibilidade = await _context.Suites.FindAsync(model.SuiteId);
+                if (suiteDisponibilidade == null)
+                {
+                    ModelState.AddModelError("", "Suíte não encontrada.");
+                    return View(model);
+                }
+
+                if (suiteDisponibilidade.Status == StatusSuite.EmManutencao)
+                {
+                    ModelState.AddModelError("", "Esta suíte está em manutenção e não está disponível para reserva no momento.");
+                    model.Suite = suiteDisponibilidade;
+                    return View(model);
+                }
+
                 // Criar ou encontrar hóspede - ÁREA PÚBLICA: INATIVA EXISTENTE E CRIA NOVO
                 var hospedeExistente = await BuscarHospedePorDocumentos(model.Documento);
 
@@ -267,7 +307,7 @@ namespace PensionatoApp.Controllers
                 await _context.SaveChangesAsync();
 
                 // Buscar a suíte para calcular valores
-                var suite = await _context.Suites.FindAsync(model.SuiteId);
+                var suite = suiteDisponibilidade;
                 if (suite == null)
                 {
                     ModelState.AddModelError("", "Suíte não encontrada.");

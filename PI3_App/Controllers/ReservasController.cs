@@ -130,6 +130,26 @@ namespace PensionatoApp.Controllers
 
             // Validar se o tipo de cama permite dois hóspedes e se os hóspedes são diferentes
             var suite = await _context.Suites.FindAsync(viewModel.SuiteId);
+            if (suite == null)
+            {
+                ModelState.AddModelError("SuiteId", "Suíte não encontrada.");
+            }
+
+            if (suite != null && suite.Status == StatusSuite.EmManutencao)
+            {
+                ModelState.AddModelError("SuiteId", "Esta suíte está em manutenção e não pode ser reservada no momento.");
+            }
+
+            var conflitoPeriodo = await _context.Reservas
+                .AnyAsync(r => r.SuiteId == viewModel.SuiteId &&
+                              r.Status == StatusReserva.Ativa &&
+                              (r.DataEntrada <= viewModel.DataSaida && r.DataSaida >= viewModel.DataEntrada));
+
+            if (conflitoPeriodo)
+            {
+                ModelState.AddModelError("SuiteId", "Esta suíte já está ocupada total ou parcialmente no período selecionado.");
+            }
+
             if (suite != null && !PermiteDoisHospedes(suite.TipoCama) && viewModel.HospedeSecundarioId.HasValue)
             {
                 ModelState.AddModelError("HospedeSecundarioId", "Suítes de solteiro só permitem 1 hóspede.");
