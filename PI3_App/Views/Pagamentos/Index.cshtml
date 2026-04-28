@@ -132,7 +132,8 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 
-                                @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente)
+                                @if (pagamento.Status == PensionatoApp.Models.StatusPagamento.Pendente ||
+                                     pagamento.Status == PensionatoApp.Models.StatusPagamento.Futuro)
                                 {
                                     <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#pagamentoModal-@pagamento.Id" title="Registrar Pagamento" aria-label="Registrar Pagamento">
                                         <i class="fas fa-money-bill"></i>
@@ -154,7 +155,7 @@
     </div>
     
     <!-- Modais para registrar pagamentos -->
-    @foreach (var pagamento in Model.Where(p => p.Status == PensionatoApp.Models.StatusPagamento.Pendente))
+    @foreach (var pagamento in Model.Where(p => p.Status == PensionatoApp.Models.StatusPagamento.Pendente || p.Status == PensionatoApp.Models.StatusPagamento.Futuro))
     {
         <div class="modal fade" id="pagamentoModal-@pagamento.Id" tabindex="-1">
             <div class="modal-dialog">
