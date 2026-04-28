@@ -150,7 +150,11 @@
                     <div>
                         <div class="text-muted small text-uppercase">Em aberto</div>
                         <div class="h3 fw-bold mb-1">@Model.ValorEmAberto.ToString("C", new CultureInfo("pt-BR"))</div>
-                        <div class="small text-danger">@Model.PagamentosPendentes pagamento(s) pendente(s)</div>
+                        <div class="small text-danger">
+                            @(Model.PagamentosEmAtraso > 0
+                                ? $"{Model.PagamentosEmAtraso} pagamento(s) em atraso"
+                                : "Sem pagamentos em atraso")
+                        </div>
                     </div>
                     <div class="metric-icon bg-danger bg-opacity-10 text-danger">
                         <i class="fas fa-file-invoice-dollar"></i>

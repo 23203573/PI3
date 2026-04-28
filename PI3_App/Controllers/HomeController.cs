@@ -46,6 +46,12 @@ namespace PensionatoApp.Controllers
                 .AverageAsync() ?? 0;
             var valorEmAberto = await pagamentosEmAbertoQuery
                 .SumAsync(p => (decimal?)p.Valor) ?? 0;
+            var pagamentosEmAtraso = await _context.Pagamentos
+                .CountAsync(p => (p.Status == StatusPagamento.Pendente || p.Status == StatusPagamento.Atrasado)
+                              && p.Status != StatusPagamento.Futuro
+                              && p.DataVencimento.Month == hoje.Month
+                              && p.DataVencimento.Year == hoje.Year
+                              && p.DataVencimento.Date < hoje.Date);
             var percentualOcupacaoGeral = totalSuites > 0
                 ? Math.Round((decimal)suitesOcupadasHoje / totalSuites * 100, 1)
                 : 0;
@@ -81,6 +87,7 @@ namespace PensionatoApp.Controllers
                 TaxaOcupacaoAtual = percentualOcupacaoGeral,
                 TicketMedioAtivo = ticketMedio,
                 ValorEmAberto = valorEmAberto,
+                PagamentosEmAtraso = pagamentosEmAtraso,
                 ReceitaProjetadaAtiva = await reservasAtivasHojeQuery.SumAsync(r => (decimal?)r.ValorMensalTotal) ?? 0,
                 ReceitaUltimosMeses = receitasUltimosMeses,
                 DistribuicaoOrigemReservas = origensReserva,
@@ -392,6 +399,7 @@ namespace PensionatoApp.Controllers
             public decimal TaxaOcupacaoAtual { get; set; }
             public decimal TicketMedioAtivo { get; set; }
             public decimal ValorEmAberto { get; set; }
+            public int PagamentosEmAtraso { get; set; }
             public decimal ReceitaProjetadaAtiva { get; set; }
             public List<SerieMensalItem> ReceitaUltimosMeses { get; set; } = new();
             public List<DistribuicaoItem> DistribuicaoOrigemReservas { get; set; } = new();
