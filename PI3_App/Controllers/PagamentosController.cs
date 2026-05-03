@@ -24,7 +24,7 @@ namespace PensionatoApp.Controllers
         }
 
         // GET: Pagamentos
-        public async Task<IActionResult> Index(StatusPagamento? status)
+        public async Task<IActionResult> Index(StatusPagamento? status, string? competencia)
         {
             var pagamentos = _context.Pagamentos
                 .Include(p => p.Reserva)
@@ -38,11 +38,34 @@ namespace PensionatoApp.Controllers
                 pagamentos = pagamentos.Where(p => p.Status == status.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(competencia) && DateTime.TryParse($"{competencia}-01", out var dataCompetencia))
+            {
+                pagamentos = pagamentos.Where(p =>
+                    p.DataVencimento.Year == dataCompetencia.Year &&
+                    p.DataVencimento.Month == dataCompetencia.Month);
+            }
+
             var resultado = await pagamentos
                 .OrderBy(p => p.DataVencimento)
                 .ToListAsync();
 
+            var competencias = await _context.Pagamentos
+                .Select(p => new { p.DataVencimento.Year, p.DataVencimento.Month })
+                .Distinct()
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Month)
+                .ToListAsync();
+
             ViewBag.StatusFiltro = status;
+            ViewBag.CompetenciaSelecionada = competencia;
+            ViewBag.Competencias = competencias
+                .Select(x => new
+                {
+                    Value = $"{x.Year:D4}-{x.Month:D2}",
+                    Texto = new DateTime(x.Year, x.Month, 1).ToString("MMMM/yyyy", new System.Globalization.CultureInfo("pt-BR"))
+                })
+                .ToList();
+
             return View(resultado);
         }
 

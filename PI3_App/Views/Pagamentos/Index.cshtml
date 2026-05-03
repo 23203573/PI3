@@ -14,22 +14,51 @@
 </div>
 
 <div class="row mb-3">
-    <div class="col-md-8">
+    <div class="col-md-7">
         <div class="btn-group" role="group">
-            <a asp-action="Index" class="btn @(ViewBag.StatusFiltro == null ? "btn-primary" : "btn-outline-primary")">
+            <a asp-action="Index" asp-route-competencia="@ViewBag.CompetenciaSelecionada" class="btn @(ViewBag.StatusFiltro == null ? "btn-primary" : "btn-outline-primary")">
                 <i class="fas fa-list"></i> Todos
             </a>
-            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pendente" 
+            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pendente" asp-route-competencia="@ViewBag.CompetenciaSelecionada"
                class="btn @(ViewBag.StatusFiltro?.ToString() == "Pendente" ? "btn-danger" : "btn-outline-danger")">
                 <i class="fas fa-clock"></i> Pendentes
             </a>
-            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pago" 
+            <a asp-action="Index" asp-route-status="@PensionatoApp.Models.StatusPagamento.Pago" asp-route-competencia="@ViewBag.CompetenciaSelecionada"
                class="btn @(ViewBag.StatusFiltro?.ToString() == "Pago" ? "btn-success" : "btn-outline-success")">
                 <i class="fas fa-check"></i> Pagos
             </a>
         </div>
     </div>
-    <div class="col-md-4 text-end">
+    <div class="col-md-5 text-end">
+        <form asp-action="Index" method="get" class="d-inline-flex align-items-center gap-2">
+            @if (ViewBag.StatusFiltro != null)
+            {
+                <input type="hidden" name="status" value="@ViewBag.StatusFiltro" />
+            }
+            <label for="competencia" class="form-label mb-0 small text-muted">Mês:</label>
+            <select id="competencia" name="competencia" class="form-select form-select-sm" style="min-width: 180px;" onchange="this.form.submit()">
+                <option value="">Todos os meses</option>
+                @if (ViewBag.Competencias != null)
+                {
+                    foreach (var item in ViewBag.Competencias)
+                    {
+                        if ((string?)ViewBag.CompetenciaSelecionada == (string)item.Value)
+                        {
+                            <option value="@item.Value" selected>@item.Texto</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Value">@item.Texto</option>
+                        }
+                    }
+                }
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12 text-end">
         <div class="btn-group" role="group">
             <a asp-action="Pendentes" class="btn btn-warning">
                 <i class="fas fa-exclamation-triangle"></i> Inadimplentes
@@ -37,13 +66,10 @@
             <a asp-action="ReceitaMensal" class="btn btn-info">
                 <i class="fas fa-chart-bar"></i> Receita Mensal
             </a>
+            <a asp-action="Relatorio" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
         </div>
-    </div>
-    </div>
-    <div class="col-md-6 text-end">
-        <a asp-action="Relatorio" class="btn btn-info">
-            <i class="fas fa-chart-bar"></i> Relatórios
-        </a>
     </div>
 </div>
 
