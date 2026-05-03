@@ -22,7 +22,9 @@ namespace PensionatoApp.Controllers
             // Gerar notificações automáticas antes de exibir
             await GerarNotificacoesAutomaticas();
 
+            // Exibir apenas notificações não lidas
             var notificacoes = await _context.Notificacoes
+                .Where(n => !n.Lida)
                 .Include(n => n.Reserva)
                     .ThenInclude(r => r.Hospede)
                 .Include(n => n.Reserva)
@@ -31,11 +33,28 @@ namespace PensionatoApp.Controllers
                     .ThenInclude(p => p.Reserva)
                         .ThenInclude(r => r.Suite)
                 .OrderByDescending(n => n.DataCriacao)
-                .ThenBy(n => n.Lida)
                 .ToListAsync();
 
-            ViewBag.NaoLidas = notificacoes.Count(n => !n.Lida);
+            ViewBag.NaoLidas = notificacoes.Count;
             ViewBag.Total = notificacoes.Count;
+
+            return View(notificacoes);
+        }
+
+        // GET: Notificacoes/Historico
+        public async Task<IActionResult> Historico()
+        {
+            var notificacoes = await _context.Notificacoes
+                .Where(n => n.Lida)
+                .Include(n => n.Reserva)
+                    .ThenInclude(r => r.Hospede)
+                .Include(n => n.Reserva)
+                    .ThenInclude(r => r.Suite)
+                .Include(n => n.Pagamento)
+                    .ThenInclude(p => p.Reserva)
+                        .ThenInclude(r => r.Suite)
+                .OrderByDescending(n => n.DataCriacao)
+                .ToListAsync();
 
             return View(notificacoes);
         }

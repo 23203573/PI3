@@ -1,0 +1,174 @@
+@model IEnumerable<PensionatoApp.Models.Notificacao>
+
+@{
+    ViewData["Title"] = "Histórico de Notificações";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-primary">
+            <i class="fas fa-history me-2"></i>
+            Histórico de Notificações
+            <span class="badge bg-secondary ms-2">@ViewBag.Total concluídas</span>
+        </h2>
+        <p class="text-muted mb-0">Visualizar todas as notificações já concluídas</p>
+    </div>
+    <div>
+        <a asp-controller="Notificacoes" asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-bell"></i> Voltar às Notificações Ativas
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Data
+                    </th>
+                    <th>
+                        <i class="fas fa-tag me-1"></i>
+                        Tipo
+                    </th>
+                    <th>
+                        <i class="fas fa-bell me-1"></i>
+                        Título
+                    </th>
+                    <th>
+                        <i class="fas fa-user me-1"></i>
+                        Hóspede / Detalhes
+                    </th>
+                    <th>
+                        <i class="fas fa-check me-1"></i>
+                        Concluída em
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-cogs me-1"></i>
+                        Ações
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var notificacao in Model)
+                {
+                    var corBadge = "";
+                    var icone = "";
+                    var tipoTexto = "";
+
+                    switch (notificacao.Tipo)
+                    {
+                        case PensionatoApp.Models.TipoNotificacao.CheckOut:
+                            corBadge = "bg-danger";
+                            icone = "fas fa-sign-out-alt";
+                            tipoTexto = "Check-out";
+                            break;
+                        case PensionatoApp.Models.TipoNotificacao.CheckIn:
+                            corBadge = "bg-success";
+                            icone = "fas fa-sign-in-alt";
+                            tipoTexto = "Check-in";
+                            break;
+                        case PensionatoApp.Models.TipoNotificacao.VencimentoAluguel:
+                            corBadge = "bg-warning";
+                            icone = "fas fa-clock";
+                            tipoTexto = "Vencimento";
+                            break;
+                        case PensionatoApp.Models.TipoNotificacao.PagamentoPendente:
+                            corBadge = "bg-danger";
+                            icone = "fas fa-dollar-sign";
+                            tipoTexto = "Pagamento";
+                            break;
+                        case PensionatoApp.Models.TipoNotificacao.Manutencao:
+                            corBadge = "bg-info";
+                            icone = "fas fa-tools";
+                            tipoTexto = "Manutenção";
+                            break;
+                        default:
+                            corBadge = "bg-primary";
+                            icone = "fas fa-info-circle";
+                            tipoTexto = "Outro";
+                            break;
+                    }
+
+                    <tr>
+                        <td>
+                            <small>@notificacao.DataCriacao.ToString("dd/MM/yyyy HH:mm")</small>
+                        </td>
+                        <td>
+                            <span class="badge @corBadge">
+                                <i class="@icone me-1"></i>@tipoTexto
+                            </span>
+                        </td>
+                        <td>
+                            <strong>@notificacao.Titulo</strong>
+                        </td>
+                        <td>
+                            @if (notificacao.Reserva?.Hospede != null)
+                            {
+                                <span>@notificacao.Reserva.Hospede.NomeCompleto</span>
+                                <br />
+                                <small class="text-muted">
+                                    Suíte: @notificacao.Reserva.Suite?.Numero
+                                </small>
+                            }
+                            else if (notificacao.Pagamento?.Reserva?.Hospede != null)
+                            {
+                                <span>@notificacao.Pagamento.Reserva.Hospede.NomeCompleto</span>
+                                <br />
+                                <small class="text-muted">
+                                    R$ @notificacao.Pagamento.Valor.ToString("0.00")
+                                </small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            <small>@notificacao.DataCriacao.ToString("dd/MM/yyyy HH:mm")</small>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                @if (notificacao.ReservaId != null)
+                                {
+                                    <a asp-controller="Reservas" asp-action="Details" asp-route-id="@notificacao.ReservaId" 
+                                       class="btn btn-outline-primary btn-sm" title="Ver reserva">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                }
+
+                                @if (notificacao.PagamentoId != null)
+                                {
+                                    <a asp-controller="Pagamentos" asp-action="Index" 
+                                       class="btn btn-outline-info btn-sm" title="Ver pagamentos">
+                                        <i class="fas fa-money-bill"></i>
+                                    </a>
+                                }
+
+                                <form asp-action="Delete" asp-route-id="@notificacao.Id" method="post" style="display:inline;" 
+                                      onsubmit="return confirm('Tem certeza que deseja excluir este histórico?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center py-5">
+        <h4><i class="fas fa-inbox me-2"></i>Nenhuma notificação no histórico</h4>
+        <p class="mb-0">Todas as notificações concluídas aparecerão aqui.</p>
+    </div>
+}
