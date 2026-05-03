@@ -51,6 +51,7 @@ namespace PensionatoApp.Models
         
         public int? PagamentoId { get; set; }
         
+        // Relacionamentos
         public virtual Reserva? Reserva { get; set; }
         public virtual Pagamento? Pagamento { get; set; }
     }
