@@ -1,4 +1,5 @@
 using PensionatoApp.Models;
+using System.Globalization;
 using System.Text;
 
 namespace PensionatoApp.Services
@@ -177,6 +178,39 @@ namespace PensionatoApp.Services
 
         public string GerarReciboHtml(Pagamento pagamento)
         {
+            var cultura = new CultureInfo("pt-BR");
+            var suite = pagamento.Reserva?.Suite;
+            var hospede = pagamento.Reserva?.Hospede;
+
+            var itensCusto = new List<(string Item, decimal Valor)>();
+
+            var valorSuite = suite?.PrecoMensal ?? pagamento.Valor;
+            itensCusto.Add(("Aluguel da suíte", valorSuite));
+
+            if (pagamento.Reserva?.TemGaragem == true)
+            {
+                itensCusto.Add(("Vaga de garagem", pagamento.Reserva.PrecoGaragem));
+            }
+
+            if (pagamento.Reserva?.TemArCondicionado == true)
+            {
+                itensCusto.Add(("Ar-condicionado", pagamento.Reserva.PrecoArCondicionado));
+            }
+
+            var totalMensalDetalhado = itensCusto.Sum(x => x.Valor);
+            var valorReferenciaSistema = pagamento.Valor;
+            var valorRecebido = pagamento.ValorPago ?? pagamento.Valor;
+
+            var linhasDetalhamento = new StringBuilder();
+            foreach (var item in itensCusto)
+            {
+                linhasDetalhamento.AppendLine($@"
+                <tr>
+                    <td>{item.Item}</td>
+                    <td class='text-right'>R$ {item.Valor.ToString("N2", cultura)}</td>
+                </tr>");
+            }
+
             return $@"
 <!DOCTYPE html>
 <html lang='pt-BR'>
@@ -187,6 +221,12 @@ namespace PensionatoApp.Services
         .header {{ text-align: center; margin-bottom: 20px; }}
         .content {{ margin: 20px 0; }}
         .footer {{ margin-top: 30px; text-align: right; }}
+        table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; }}
+        th {{ background-color: #f5f5f5; text-align: left; }}
+        .text-right {{ text-align: right; }}
+        .total-row td {{ font-weight: bold; background-color: #fafafa; }}
+        .resume-box {{ border: 1px solid #ddd; padding: 12px; margin-top: 12px; }}
     </style>
 </head>
 <body>
@@ -201,14 +241,36 @@ namespace PensionatoApp.Services
         
         <hr/>
         
-        <p><strong>Recebemos de:</strong> {pagamento.Reserva.Hospede.NomeCompleto}</p>
+        <p><strong>Recebemos de:</strong> {hospede?.NomeCompleto ?? "Não informado"}</p>
         <p><strong>Referente a:</strong> {pagamento.Descricao}</p>
-        <p><strong>Suíte:</strong> {pagamento.Reserva.Suite.Numero}</p>
+        <p><strong>Suíte:</strong> {suite?.Numero.ToString() ?? "Não informada"}</p>
         <p><strong>Período:</strong> {pagamento.DataVencimento:MM/yyyy}</p>
+
+        <h4>Detalhamento do custo mensal</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class='text-right'>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {linhasDetalhamento}
+                <tr class='total-row'>
+                    <td>Total do mês (detalhado)</td>
+                    <td class='text-right'>R$ {totalMensalDetalhado.ToString("N2", cultura)}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class='resume-box'>
+            <p><strong>Valor de referência no pagamento:</strong> R$ {valorReferenciaSistema.ToString("N2", cultura)}</p>
+            <p><strong>Valor total recebido:</strong> R$ {valorRecebido.ToString("N2", cultura)}</p>
+        </div>
         
         <hr/>
         
-        <p><strong>Valor recebido:</strong> R$ {pagamento.ValorPago:N2}</p>
+        <p><strong>Valor recebido:</strong> R$ {valorRecebido.ToString("N2", cultura)}</p>
         <p><strong>Forma de pagamento:</strong> {pagamento.FormaPagamento}</p>
         
         {(string.IsNullOrEmpty(pagamento.Observacoes) ? "" : $"<p><strong>Observações:</strong> {pagamento.Observacoes}</p>")}
