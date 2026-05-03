@@ -19,7 +19,7 @@
         {
             <form asp-action="MarcarTodasComoLidas" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-outline-success me-2">
-                    <i class="fas fa-check-double"></i> Marcar Todas como Lidas
+                    <i class="fas fa-check-double"></i> Marcar Todas como Concluídas
                 </button>
             </form>
         }
@@ -130,14 +130,11 @@
                                 @notificacao.DataCriacao.ToString("dd/MM/yyyy HH:mm")
                             </small>
                             <div class="btn-group" role="group">
-                                @if (!notificacao.Lida)
-                                {
-                                    <form asp-action="MarcarComoLida" asp-route-id="@notificacao.Id" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-outline-success btn-sm" title="Marcar como lida">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                }
+                                <form asp-action="MarcarComoLida" asp-route-id="@notificacao.Id" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm" title="Concluído">
+                                        <i class="fas fa-check me-1"></i>Concluído
+                                    </button>
+                                </form>
                                 
                                 @if (notificacao.ReservaId != null)
                                 {
