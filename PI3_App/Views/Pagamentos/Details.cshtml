@@ -1,0 +1,130 @@
+@model PensionatoApp.Models.Pagamento
+
+@{
+    ViewData["Title"] = "Detalhes do Pagamento";
+
+    var suite = Model.Reserva?.Suite;
+    var hospede = Model.Reserva?.Hospede;
+
+    var itens = new List<(string Item, decimal Valor)>();
+    var valorSuite = suite?.PrecoMensal ?? Model.Valor;
+    itens.Add(("Aluguel da suíte", valorSuite));
+
+    if (Model.Reserva?.TemGaragem == true)
+    {
+        itens.Add(("Vaga de garagem", Model.Reserva.PrecoGaragem));
+    }
+
+    if (Model.Reserva?.TemArCondicionado == true)
+    {
+        itens.Add(("Ar-condicionado", Model.Reserva.PrecoArCondicionado));
+    }
+
+    var totalDetalhado = itens.Sum(i => i.Valor);
+    var valorRecebido = Model.ValorPago ?? Model.Valor;
+    var isAtrasado = Model.Status == PensionatoApp.Models.StatusPagamento.Pendente && Model.DataVencimento.Date < DateTime.Today;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+        Detalhes do Pagamento
+    </h2>
+    <div class="btn-group" role="group">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+        @if (Model.Status == PensionatoApp.Models.StatusPagamento.Pago)
+        {
+            <a asp-action="GerarRecibo" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-info">
+                <i class="fas fa-receipt me-1"></i> Gerar Recibo
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <strong>Informações gerais</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Hóspede:</strong> @hospede?.NomeCompleto</p>
+                <p class="mb-2"><strong>Suíte:</strong> @(suite != null ? $"Suíte {suite.Numero}" : "Não informada")</p>
+                <p class="mb-2"><strong>Descrição:</strong> @Model.Descricao</p>
+                <p class="mb-2"><strong>Competência:</strong> @Model.DataVencimento.ToString("MM/yyyy")</p>
+                <p class="mb-2"><strong>Vencimento:</strong> @Model.DataVencimento.ToString("dd/MM/yyyy")</p>
+                <p class="mb-2">
+                    <strong>Status:</strong>
+                    @if (Model.Status == PensionatoApp.Models.StatusPagamento.Pago)
+                    {
+                        <span class="badge bg-success">Pago</span>
+                    }
+                    else if (isAtrasado)
+                    {
+                        <span class="badge bg-danger">Atrasado</span>
+                    }
+                    else if (Model.Status == PensionatoApp.Models.StatusPagamento.Futuro)
+                    {
+                        <span class="badge bg-info">Futuro</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Pendente</span>
+                    }
+                </p>
+                <p class="mb-2"><strong>Forma de pagamento:</strong> @(Model.FormaPagamento?.ToString() ?? "Não informada")</p>
+                <p class="mb-0"><strong>Data do pagamento:</strong> @(Model.DataPagamento?.ToString("dd/MM/yyyy") ?? "Não registrada")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <strong>Detalhamento do custo do mês</strong>
+                <span class="small text-muted">Pagamento #@Model.Id</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-end">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in itens)
+                            {
+                                <tr>
+                                    <td>@item.Item</td>
+                                    <td class="text-end">@item.Valor.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                                </tr>
+                            }
+                            <tr class="table-light fw-bold">
+                                <td>Total do mês (detalhado)</td>
+                                <td class="text-end">@totalDetalhado.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                            </tr>
+                            <tr>
+                                <td>Valor de referência no pagamento</td>
+                                <td class="text-end">@Model.Valor.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td>Valor total recebido</td>
+                                <td class="text-end text-success">@valorRecebido.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Observacoes))
+            {
+                <div class="card-footer bg-white">
+                    <strong>Observações:</strong> @Model.Observacoes
+                </div>
+            }
+        </div>
+    </div>
+</div>
