@@ -254,7 +254,31 @@ namespace PensionatoApp.Controllers
                 }
             }
 
-            // 5. Verificar pagamentos pendentes
+            // 5. Verificar reservas com check-in hoje
+            var reservasCheckInHoje = await _context.Reservas
+                .Include(r => r.Hospede)
+                .Include(r => r.Suite)
+                .Where(r => r.DataEntrada.Date == hoje && r.Status == StatusReserva.Ativa)
+                .ToListAsync();
+
+            foreach (var reserva in reservasCheckInHoje)
+            {
+                var notificacaoExiste = await _context.Notificacoes
+                    .AnyAsync(n => n.ReservaId == reserva.Id && n.Tipo == TipoNotificacao.CheckIn && !n.Lida);
+
+                if (!notificacaoExiste)
+                {
+                    await _context.Notificacoes.AddAsync(new Notificacao
+                    {
+                        Titulo = $"Check-in Hoje - Suíte {reserva.Suite?.Numero}",
+                        Mensagem = $"O hóspede {reserva.Hospede?.NomeCompleto} tem entrada prevista para HOJE ({reserva.DataEntrada:dd/MM/yyyy}) na suíte {reserva.Suite?.Numero}.",
+                        Tipo = TipoNotificacao.CheckIn,
+                        ReservaId = reserva.Id
+                    });
+                }
+            }
+
+            // 6. Verificar pagamentos pendentes
             var pagamentosPendentes = await _context.Pagamentos
                 .Include(p => p.Reserva)
                     .ThenInclude(r => r.Suite)
